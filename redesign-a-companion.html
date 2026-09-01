@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SICAS 리디자인 A — Warm Companion</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+<style>
+@font-face {
+  font-family: 'Pretendard';
+  src: url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/woff2/PretendardVariable.woff2') format('woff2-variations');
+  font-weight: 45 920;
+  font-display: swap;
+}
+
+:root{
+  --brand-mark: #0E3B3E;
+  --brand-mark-soft: #175055;
+
+  --calm-surface: #E6ECF2;
+  --calm-ink: #16202B;
+  --calm-action: #0E3B3E;
+  --calm-vessel: #0E3B3E;
+
+  --watch-surface: #F7DFA8;
+  --watch-ink: #4A3110;
+  --watch-action: #7A4A18;
+  --vessel-watch: #C98A2B;
+
+  --urgent-surface: #8E2F26;
+  --urgent-ink: #FFFFFF;
+  --urgent-action: #FFFFFF;
+  --urgent-action-ink: #8E2F26;
+
+  --canvas: #F6F4EF;
+  --surface: #FFFFFF;
+  --surface-muted: #F1EEE7;
+  --border: #E4DFD3;
+  --ink: #1C2024;
+  --ink-muted: #62666B;
+  --ink-faint: #9A9D9F;
+
+  --radius-card: 16px;
+  --radius-cta: 26px;
+  --radius-container: 10px;
+  --radius-sm: 8px;
+
+  --shadow-elev: 0 8px 24px rgba(16,20,28,.12);
+}
+
+*{ box-sizing: border-box; }
+
+html, body{
+  margin:0; padding:0;
+  background: var(--canvas);
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+.page-header{
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 28px 24px 12px;
+}
+.page-header .kicker{
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  color: var(--brand-mark);
+  text-transform: uppercase;
+  margin: 0 0 6px;
+}
+.page-header h1{
+  font-size: 22px;
+  font-weight: 800;
+  margin: 0 0 6px;
+  letter-spacing: -0.01em;
+}
+.page-header p{
+  font-size: 14px;
+  color: var(--ink-muted);
+  margin: 0;
+  line-height: 1.6;
+  max-width: 780px;
+}
+
+.gallery{
+  display: flex;
+  gap: 32px;
+  overflow-x: auto;
+  padding: 24px 24px 56px;
+  scroll-snap-type: x proximity;
+  align-items: flex-start;
+}
+
+.frame-block{
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+}
+.frame-label{
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-muted);
+  margin: 0 0 10px 4px;
+}
+.frame-label b{ color: var(--ink); font-weight: 800; }
+
+.phone{
+  width: 390px;
+  height: 844px;
+  border-radius: 44px;
+  background: #0B0B0C;
+  padding: 12px;
+  box-shadow: 0 24px 60px rgba(0,0,0,.28), 0 2px 6px rgba(0,0,0,.15);
+  position: relative;
+}
+.phone .screen{
+  width: 100%;
+  height: 100%;
+  border-radius: 34px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+}
+.notch{
+  position: absolute;
+  top: 12px; left: 50%;
+  transform: translateX(-50%);
+  width: 120px; height: 26px;
+  background: #0B0B0C;
+  border-radius: 16px;
+  z-index: 50;
+}
+
+.status-bar{
+  height: 48px;
+  flex-shrink: 0;
+  display:flex; align-items:flex-end; justify-content: space-between;
+  padding: 0 24px 8px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* noise texture, opacity <= 4% per governance */
+.noise::after{
+  content:"";
+  position:absolute; inset:0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: .035;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+}
+
+.today-surface{
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+.today-surface.calm{ background: var(--calm-surface); color: var(--calm-ink); }
+.today-surface.urgent{ background: var(--urgent-surface); color: var(--urgent-ink); }
+
+.today-topbar{
+  display:flex; align-items:center; justify-content: space-between;
+  padding: 4px 24px 0;
+  position: relative; z-index: 2;
+}
+.brandmark{
+  display:flex; align-items:center; gap:8px;
+  font-size: 14px; font-weight: 800;
+}
+.brandmark .dot{
+  width: 22px; height: 22px; border-radius: 7px;
+  display:flex; align-items:center; justify-content:center;
+}
+.calm .brandmark .dot{ background: var(--brand-mark); }
+.urgent .brandmark .dot{ background: rgba(255,255,255,.22); }
+
+.today-count{
+  font-size: 12.5px; font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 999px;
+}
+.calm .today-count{ background: rgba(14,59,62,.09); color: var(--brand-mark); }
+.urgent .today-count{ background: rgba(255,255,255,.18); color: #fff; }
+
+.today-hero{
+  padding: 22px 24px 8px;
+  position: relative; z-index: 2;
+}
+.today-eyebrow{
+  font-size: 13px; font-weight: 700;
+  opacity: .72;
+  margin: 0 0 10px;
+}
+.today-headline{
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.28;
+  letter-spacing: -0.015em;
+  margin: 0 0 14px;
+}
+.today-reason{
+  font-size: 15px;
+  line-height: 1.6;
+  opacity: .88;
+  margin: 0 0 22px;
+  max-width: 320px;
+}
+
+.vessel-hero{
+  display:flex; align-items:center; gap: 18px;
+  padding: 18px 20px;
+  border-radius: var(--radius-card);
+  margin: 0 0 20px;
+}
+.calm .vessel-hero{ background: rgba(255,255,255,.55); }
+.urgent .vessel-hero{ background: rgba(255,255,255,.12); }
+
+.vessel-meta{ flex: 1; }
+.vessel-meta .name{ font-size: 16px; font-weight: 800; margin: 0 0 4px; }
+.vessel-meta .sub{ font-size: 13px; opacity: .78; margin: 0; }
+.vessel-band{
+  margin-top: 10px;
+  height: 6px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(0,0,0,.08);
+}
+.calm .vessel-band{ background: rgba(14,59,62,.14); }
+.urgent .vessel-band{ background: rgba(255,255,255,.22); }
+.vessel-band i{
+  display:block; height: 100%;
+  border-radius: 999px;
+}
+
+.cta-stack{
+  padding: 0 24px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: relative; z-index: 2;
+}
+.cta{
+  height: 54px;
+  border-radius: var(--radius-cta);
+  border: none;
+  font-size: 15.5px;
+  font-weight: 700;
+  display:flex; align-items:center; justify-content:center; gap: 8px;
+  cursor: pointer;
+}
+.cta.primary.calm{ background: var(--brand-mark); color: #fff; }
+.cta.primary.urgent{ background: #fff; color: var(--urgent-action-ink); }
+.cta.secondary.calm{ background: rgba(14,59,62,.08); color: var(--calm-ink); }
+.cta.secondary.urgent{ background: rgba(255,255,255,.16); color: #fff; }
+.cta.tertiary.urgent{ background: transparent; color: #fff; border: 1.5px solid rgba(255,255,255,.5); }
+
+.more-list-wrap{
+  margin-top: 10px;
+  padding: 18px 24px 28px;
+  position: relative; z-index: 2;
+  flex: 1;
+}
+.more-heading{
+  font-size: 13px; font-weight: 700; opacity: .8;
+  margin: 0 0 12px;
+}
+.more-item{
+  display:flex; align-items:center; gap: 12px;
+  padding: 13px 14px;
+  border-radius: 14px;
+  background: rgba(255,255,255,.14);
+  margin-bottom: 10px;
+}
+.more-item .ic{
+  width: 38px; height: 38px; border-radius: 10px;
+  background: rgba(255,255,255,.2);
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink: 0;
+}
+.more-item .txt{ flex: 1; min-width: 0; }
+.more-item .txt .n{ font-size: 14px; font-weight: 700; margin:0 0 2px; }
+.more-item .txt .d{ font-size: 12.5px; opacity: .75; margin:0; }
+.more-item .badge{
+  font-size: 11.5px; font-weight: 700;
+  padding: 4px 9px; border-radius: 999px;
+  background: rgba(255,255,255,.22);
+  flex-shrink: 0;
+}
+
+/* Bottom nav */
+.bottom-nav{
+  height: 78px;
+  flex-shrink: 0;
+  display:flex;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding-bottom: 14px;
+  position: relative; z-index: 5;
+}
+.nav-item{
+  flex: 1;
+  display:flex; flex-direction: column; align-items:center; justify-content:center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink-faint);
+}
+.nav-item.active{ color: var(--brand-mark); }
+.nav-item svg{ width: 24px; height: 24px; }
+
+/* Inventory tab */
+.inv-screen{ flex:1; display:flex; flex-direction:column; overflow-y:auto; background: var(--canvas); }
+.inv-header{ padding: 20px 24px 4px; }
+.inv-header h2{ font-size: 22px; font-weight: 800; margin: 0 0 4px; letter-spacing:-0.01em; }
+.inv-header .sub{ font-size: 13px; color: var(--ink-muted); margin:0; }
+
+.chip-row{
+  display:flex; gap: 8px; padding: 16px 24px 6px;
+  overflow-x: auto;
+}
+.chip{
+  flex-shrink: 0;
+  padding: 9px 16px;
+  border-radius: 999px;
+  font-size: 13.5px; font-weight: 700;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  color: var(--ink-muted);
+  white-space: nowrap;
+}
+.chip.active{ background: var(--brand-mark); border-color: var(--brand-mark); color: #fff; }
+.chip .cnt{ opacity: .7; margin-left: 3px; }
+
+.inv-list{ padding: 8px 20px 24px; display:flex; flex-direction:column; gap: 10px; }
+.inv-row{
+  display:flex; align-items:center; gap: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: 13px 14px;
+  min-height: 56px;
+}
+.vessel-svg{ flex-shrink: 0; }
+.inv-row .body{ flex: 1; min-width: 0; }
+.inv-row .body .name{ font-size: 15px; font-weight: 700; margin: 0 0 3px; }
+.inv-row .body .meta{ font-size: 13px; color: var(--ink-muted); margin: 0; display:flex; align-items:center; gap:6px; }
+.status-dot{ width:7px; height:7px; border-radius:999px; display:inline-block; }
+.status-dot.calm{ background: var(--brand-mark); }
+.status-dot.watch{ background: var(--vessel-watch); }
+.status-dot.urgent{ background: var(--urgent-surface); }
+.inv-row .pct{ font-size: 13px; font-weight: 800; color: var(--ink-faint); flex-shrink:0; }
+
+/* Register tab */
+.reg-screen{ flex:1; display:flex; flex-direction:column; overflow-y:auto; background: var(--canvas); }
+.reg-header{ padding: 20px 24px 4px; }
+.reg-header h2{ font-size: 22px; font-weight: 800; margin: 0 0 4px; letter-spacing:-0.01em; }
+.reg-header .sub{ font-size: 13px; color: var(--ink-muted); margin:0; }
+
+.reg-section-title{ font-size: 17px; font-weight: 700; padding: 20px 24px 10px; margin:0; }
+
+.preset-grid{
+  display:grid; grid-template-columns: repeat(3, 1fr);
+  gap: 10px; padding: 0 20px;
+}
+.preset-card{
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: 14px 10px 12px;
+  display:flex; flex-direction:column; align-items:center; gap: 8px;
+  text-align: center;
+}
+.preset-card .ic{
+  width: 44px; height: 44px; border-radius: 12px;
+  background: var(--surface-muted);
+  display:flex; align-items:center; justify-content:center;
+}
+.preset-card .lbl{ font-size: 12.5px; font-weight: 700; line-height: 1.3; }
+
+.manual-entry{
+  margin: 22px 20px 24px;
+  background: var(--surface);
+  border: 1.5px dashed var(--border);
+  border-radius: var(--radius-card);
+  padding: 18px 18px;
+  display:flex; align-items:center; gap: 14px;
+}
+.manual-entry .ic{
+  width: 46px; height: 46px; border-radius: 12px;
+  background: var(--brand-mark);
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink: 0;
+}
+.manual-entry .t{ flex:1; }
+.manual-entry .t .n{ font-size: 15px; font-weight: 800; margin: 0 0 3px; }
+.manual-entry .t .d{ font-size: 12.5px; color: var(--ink-muted); margin: 0; }
+
+.form-preview{
+  margin: 0 20px 30px;
+  background: var(--surface);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.form-preview .fh{
+  padding: 14px 18px;
+  font-size: 13px; font-weight: 700;
+  color: var(--ink-muted);
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-muted);
+}
+.field{
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+}
+.field:last-child{ border-bottom: none; }
+.field label{ display:block; font-size: 12.5px; font-weight: 700; color: var(--ink-muted); margin: 0 0 6px; }
+.field .val{ font-size: 15px; font-weight: 500; color: var(--ink); }
+.field .val.placeholder{ color: var(--ink-faint); font-weight: 400; }
+.field-cta{
+  margin: 16px 18px 20px;
+  height: 52px;
+  border-radius: var(--radius-cta);
+  background: var(--brand-mark);
+  color: #fff;
+  border: none;
+  font-size: 15px; font-weight: 700;
+  display: flex; align-items:center; justify-content:center;
+}
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <p class="kicker">SICAS · Redesign Concept A</p>
+  <h1>Warm Companion — 상태 반응형 색면과 통(vessel) 시각화의 완성형</h1>
+  <p>Design Governance v1.1 문법(상태 색면 · 브랜드 마크 · 대담한 타이포 위계)을 유지하면서, 종이 결 텍스처와 손으로 그린 듯한 vessel 일러스트로 온기를 더한 시안입니다. 오늘 탭의 색면과 잔량 시각화가 화면의 주인공입니다.</p>
+</header>
+
+<div class="gallery">
+
+  <!-- ============ SCREEN 1: 오늘 탭 calm ============ -->
+  <div class="frame-block">
+    <p class="frame-label">1 · 오늘 탭 — <b>calm 상태</b> (여유)</p>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen">
+        <div class="today-surface calm noise">
+          <div class="status-bar"><span>9:41</span><span>●●●●  🔋</span></div>
+
+          <div class="today-topbar">
+            <div class="brandmark">
+              <span class="dot">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M4 10L12 4L20 10V19C20 19.55 19.55 20 19 20H15C14.45 20 14 19.55 14 19V14H10V19C10 19.55 9.55 20 9 20H5C4.45 20 4 19.55 4 19V10Z" fill="#E6ECF2"/></svg>
+              </span>
+              SICAS
+            </div>
+            <div class="today-count">확인할 일 0 / 전체 18</div>
+          </div>
+
+          <div class="today-hero">
+            <p class="today-eyebrow">오늘 확인할 것</p>
+            <h1 class="today-headline">지금은 여유로워요.<br/>다음 확인은 4일 뒤예요.</h1>
+            <p class="today-reason">화장지 재고가 넉넉해서 당분간 새로 살 필요가 없어요. 평소 소비 속도 기준으로 계산했어요.</p>
+
+            <div class="vessel-hero">
+              <svg width="52" height="64" viewBox="0 0 52 64" fill="none">
+                <defs><clipPath id="vc1"><path d="M6 8H46L42 58C42 60.2 40.2 62 38 62H14C11.8 62 10 60.2 10 58L6 8Z"/></clipPath></defs>
+                <path d="M6 8H46L42 58C42 60.2 40.2 62 38 62H14C11.8 62 10 60.2 10 58L6 8Z" stroke="#0E3B3E" stroke-width="2" fill="rgba(14,59,62,.06)"/>
+                <g clip-path="url(#vc1)"><rect x="4" y="20" width="44" height="44" fill="#0E3B3E"/></g>
+                <path d="M4 8H48" stroke="#0E3B3E" stroke-width="2.5" stroke-linecap="round"/>
+              </svg>
+              <div class="vessel-meta">
+                <p class="name">화장지 30롤</p>
+                <p class="sub">약 78% 남음 · 하루 1.1롤 소비</p>
+                <div class="vessel-band"><i style="width:78%; background:#0E3B3E;"></i></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="cta-stack">
+            <button class="cta primary calm">다음에 살 때 알려줘</button>
+          </div>
+
+          <div class="more-list-wrap">
+            <p class="more-heading">여유 있지만 지켜보는 중 · 3건</p>
+            <div class="more-item">
+              <div class="ic">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M8 6H16L17 21H7L8 6Z" stroke="#16202B" stroke-width="1.6"/><path d="M10 6V4H14V6" stroke="#16202B" stroke-width="1.6"/></svg>
+              </div>
+              <div class="txt"><p class="n">주방세제</p><p class="d">55% 남음 · 학습 중</p></div>
+              <div class="badge">관찰</div>
+            </div>
+            <div class="more-item">
+              <div class="ic">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="6" y="5" width="12" height="16" rx="2" stroke="#16202B" stroke-width="1.6"/></svg>
+              </div>
+              <div class="txt"><p class="n">분리수거 봉투</p><p class="d">63% 남음</p></div>
+              <div class="badge">관찰</div>
+            </div>
+            <div class="more-item">
+              <div class="ic">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="7" stroke="#16202B" stroke-width="1.6"/></svg>
+              </div>
+              <div class="txt"><p class="n">커피 원두</p><p class="d">70% 남음</p></div>
+              <div class="badge">관찰</div>
+            </div>
+          </div>
+        </div>
+
+        <nav class="bottom-nav">
+          <div class="nav-item active">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M4 10L12 4L20 10V19C20 19.55 19.55 20 19 20H15C14.45 20 14 19.55 14 19V14H10V19C10 19.55 9.55 20 9 20H5C4.45 20 4 19.55 4 19V10Z" fill="#0E3B3E"/></svg>
+            오늘
+          </div>
+          <div class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none"><rect x="4" y="9" width="16" height="11" rx="1.5" stroke="#9A9D9F" stroke-width="1.8"/><path d="M4 9L6 4H18L20 9" stroke="#9A9D9F" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 13H15" stroke="#9A9D9F" stroke-width="1.8" stroke-linecap="round"/></svg>
+            재고
+          </div>
+          <div class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#9A9D9F" stroke-width="1.8"/><path d="M12 8V16M8 12H16" stroke="#9A9D9F" stroke-width="1.8" stroke-linecap="round"/></svg>
+            등록
+          </div>
+          <div class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none"><circle cx="6" cy="6" r="1.6" fill="#9A9D9F"/><circle cx="6" cy="12" r="1.6" fill="#9A9D9F"/><circle cx="6" cy="18" r="1.6" fill="#9A9D9F"/><path d="M11 6H19M11 12H19M11 18H19" stroke="#9A9D9F" stroke-width="1.8" stroke-linecap="round"/></svg>
+            전체
+          </div>
+        </nav>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN 2: 오늘 탭 urgent ============ -->
+  <div class="frame-block">
+    <p class="frame-label">2 · 오늘 탭 — <b>urgent 상태</b> (임박)</p>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen">
+        <div class="today-surface urgent noise">
+          <div class="status-bar"><span>9:41</span><span>●●●●  🔋</span></div>
+
+          <div class="today-topbar">
+            <div class="brandmark">
+              <span class="dot">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M4 10L12 4L20 10V19C20 19.55 19.55 20 19 20H15C14.45 20 14 19.55 14 19V14H10V19C10 19.55 9.55 20 9 20H5C4.45 20 4 19.55 4 19V10Z" fill="#fff"/></svg>
+              </span>
+              SICAS
+            </div>
+            <div class="today-count">확인할 일 3 / 전체 18</div>
+          </div>
+
+          <div class="today-hero">
+            <p class="today-eyebrow">오늘 확인할 것</p>
+            <h1 class="today-headline">분유가 내일이면<br/>다 떨어져요.</h1>
+            <p class="today-reason">최근 7일 소비 속도로 보면 내일 저녁이면 통이 비어요. 배송이 보통 1~2일 걸리니 지금 주문하는 게 안전해요.</p>
+
+            <div class="vessel-hero">
+              <svg width="52" height="64" viewBox="0 0 52 64" fill="none">
+                <defs><clipPath id="vc2"><path d="M6 8H46L42 58C42 60.2 40.2 62 38 62H14C11.8 62 10 60.2 10 58L6 8Z"/></clipPath></defs>
+                <path d="M6 8H46L42 58C42 60.2 40.2 62 38 62H14C11.8 62 10 60.2 10 58L6 8Z" stroke="#fff" stroke-width="2" fill="rgba(255,255,255,.08)"/>
+                <g clip-path="url(#vc2)"><rect x="4" y="54" width="44" height="14" fill="#fff"/></g>
+                <path d="M4 8H48" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+              </svg>
+              <div class="vessel-meta">
+                <p class="name">분유 800g</p>
+                <p class="sub">약 12% 남음 · 하루 90g 소비</p>
+                <div class="vessel-band"><i style="width:12%; background:#fff;"></i></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="cta-stack">
+            <button class="cta primary urgent">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 6H21L18 15H8L6 6Z" stroke="#8E2F26" stroke-width="1.8"/><circle cx="9" cy="20" r="1.4" fill="#8E2F26"/><circle cx="17" cy="20" r="1.4" fill="#8E2F26"/></svg>
+              지금 주문하기
+            </button>
+            <button class="cta secondary urgent">평소 사던 곳에서 재주문</button>
+            <button class="cta tertiary urgent">이미 샀어요 · 재고 갱신</button>
+          </div>
+
+          <div class="more-list-wrap">
+            <p class="more-heading">더 볼 것 · 2건</p>
+            <div class="more-item">
+              <div class="ic">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="7" y="4" width="10" height="17" rx="2" stroke="#fff" stroke-width="1.6"/><path d="M9 4V2H15V4" stroke="#fff" stroke-width="1.6"/></svg>
+              </div>
+              <div class="txt"><p class="n">세탁세제</p><p class="d">18% 남음 · 이틀 뒤 소진 예상</p></div>
+              <div class="badge">이번 주</div>
+            </div>
+            <div class="more-item">
+              <div class="ic">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M8 4H16L18 20H6L8 4Z" stroke="#fff" stroke-width="1.6"/></svg>
+              </div>
+              <div class="txt"><p class="n">기저귀 4단계</p><p class="d">25% 남음 · 3일 뒤 소진 예상</p></div>
+              <div class="badge">이번 주</div>
+            </div>
+          </div>
+        </div>
+
+        <nav class="bottom-nav">
+          <div class="nav-item active">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M4 10L12 4L20 10V19C20 19.55 19.55 20 19 20H15C14.45 20 14 19.55 14 19V14H10V19C10 19.55 9.55 20 9 20H5C4.45 20 4 19.55 4 19V10Z" fill="#0E3B3E"/></svg>
+            오늘
+          </div>
+          <div class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none"><rect x="4" y="9" width="16" height="11" rx="1.5" stroke="#9A9D9F" stroke-width="1.8"/><path d="M4 9L6 4H18L20 9" stroke="#9A9D9F" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 13H15" stroke="#9A9D9F" stroke-width="1.8" stroke-linecap="round"/></svg>
+            재고
+          </div>
+          <div class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#9A9D9F" stroke-width="1.8"/><path d="M12 8V16M8 12H16" stroke="#9A9D9F" stroke-width="1.8" stroke-linecap="round"/></svg>
+            등록
+          </div>
+          <div class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none"><circle cx="6" cy="6" r="1.6" fill="#9A9D9F"/><circle cx="6" cy="12" r="1.6" fill="#9A9D9F"/><circle cx="6" cy="18" r="1.6" fill="#9A9D9F"/><path d="M11 6H19M11 12H19M11 18H19" stroke="#9A9D9F" stroke-width="1.8" stroke-linecap="round"/></svg>
+            전체
+          </div>
+        </nav>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN 3: 재고 탭 ============ -->
+  <div class="frame-block">
+    <p class="frame-label">3 · 재고 탭 — 필터 + vessel 목록</p>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen">
+        <div class="status-bar"><span>9:41</span><span>●●●●  🔋</span></div>
+        <div class="inv-screen">
+          <div class="inv-header">
+            <h2>재고</h2>
+            <p class="sub">집에 있는 물건 18개를 관리하고 있어요</p>
+          </div>
+          <div class="chip-row">
+            <div class="chip active">전체 <span class="cnt">18</span></div>
+            <div class="chip">부족 <span class="cnt">4</span></div>
+            <div class="chip">생활용품</div>
+            <div class="chip">주방</div>
+            <div class="chip">육아</div>
+            <div class="chip">위생</div>
+          </div>
+
+          <div class="inv-list">
+
+            <div class="inv-row">
+              <svg class="vessel-svg" width="34" height="42" viewBox="0 0 34 42" fill="none">
+                <defs><clipPath id="r1"><path d="M4 5H30L27.5 38C27.5 39.4 26.4 40.5 25 40.5H9C7.6 40.5 6.5 39.4 6.5 38L4 5Z"/></clipPath></defs>
+                <path d="M4 5H30L27.5 38C27.5 39.4 26.4 40.5 25 40.5H9C7.6 40.5 6.5 39.4 6.5 38L4 5Z" stroke="#E4DFD3" stroke-width="1.6" fill="#F1EEE7"/>
+                <g clip-path="url(#r1)"><rect x="2" y="10" width="30" height="32" fill="#0E3B3E"/></g>
+                <path d="M2 5H32" stroke="#B9B2A0" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <div class="body"><p class="name">화장지 30롤</p><p class="meta"><span class="status-dot calm"></span>78% 남음 · 여유</p></div>
+              <div class="pct">78%</div>
+            </div>
+
+            <div class="inv-row">
+              <svg class="vessel-svg" width="34" height="42" viewBox="0 0 34 42" fill="none">
+                <defs><clipPath id="r2"><path d="M4 5H30L27.5 38C27.5 39.4 26.4 40.5 25 40.5H9C7.6 40.5 6.5 39.4 6.5 38L4 5Z"/></clipPath></defs>
+                <path d="M4 5H30L27.5 38C27.5 39.4 26.4 40.5 25 40.5H9C7.6 40.5 6.5 39.4 6.5 38L4 5Z" stroke="#E4DFD3" stroke-width="1.6" fill="#F1EEE7"/>
+                <g clip-path="url(#r2)"><rect x="2" y="30" width="30" height="12" fill="#8E2F26"/></g>
+                <path d="M2 5H32" stroke="#B9B2A0" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <div class="body"><p class="name">분유 800g</p><p class="meta"><span class="status-dot urgent"></span>12% 남음 · 임박</p></div>
+              <div class="pct">12%</div>
+            </div>
+
+            <div class="inv-row">
+              <svg class="vessel-svg" width="34" height="42" viewBox="0 0 34 42" fill="none">
+                <defs><clipPath id="r3"><path d="M4 5H30L27.5 38C27.5 39.4 26.4 40.5 25 40.5H9C7.6 40.5 6.5 39.4 6.5 38L4 5Z"/></clipPath></defs>
+                <path d="M4 5H30L27.5 38C27.5 39.4 26.4 40.5 25 40.5H9C7.6 40.5 6.5 39.4 6.5 38L4 5Z" stroke="#E4DFD3" stroke-width="1.6" fill="#F1EEE7"/>
+                <g clip-path="url(#r3)"><rect x="2" y="24" width="30" height="18" fill="#C98A2B"/></g>
+                <path d="M2 5H32" stroke="#B9B2A0" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <div class="body"><p class="name">세탁세제 2.7L</p><p class="meta"><span class="status-dot watch"></span>18% 남음 · 이번 주</p></div>
+              <div class="pct">18%</div>
+            </div>
+
+            <div class="inv-row">
+              <svg class="vessel-svg" width="34" height="42" viewBox="0 0 34 42" fill="none">
+                <defs><clipPath id="r4"><path d="M4 5H30L27.5 38C27.5 39.4 26.4 40.5 25 40.5H9C7.6 40.5 6.5 39.4 6.5 38L4 5Z"/></clipPath></defs>
+                <path d="M4 5H30L27.5 38C27.5 39.4 26.4 40.5 25 40.5H9C7.6 40.5 6.5 39.4 6.5 38L4 5Z" stroke="#E4DFD3" stroke-width="1.6" fill="#F1EEE7"/>
+                <g clip-path="url(#r4)"><rect x="2" y="26" width="30" height="16" fill="#C98A2B"/></g>
+                <path d="M2 5H32" stroke="#B9B2A0" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <div class="body"><p class="name">기저귀 4단계</p><p class="meta"><span class="status-dot watch"></span>25% 남음 · 이번 주</p></div>
+              <div class="pct">25%</div>
+            </div>
+
+            <div class="inv-row">
+              <svg class="vessel-svg" width="34" height="42" viewBox="0 0 34 42" fill="none">
+                <defs><clipPath id="r5"><path d="M4 5H30L27.5 38C27.5 39.4 26.4 40.5 25 40.5H9C7.6 40.5 6.5 39.4 6.5 38L4 5Z"/></clipPath></defs>
+                <path d="M4 5H30L27.5 38C27.5 39.4 26.4 40.5 25 40.5H9C7.6 40.5 6.5 39.4 6.5 38L4 5Z" stroke="#E4DFD3" stroke-width="1.6" fill="#F1EEE7"/>
+                <g clip-path="url(#r5)"><rect x="2" y="12" width="30" height="30" fill="#0E3B3E"/></g>
+                <path d="M2 5H32" stroke="#B9B2A0" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <div class="body"><p class="name">주방세제</p><p class="meta"><span class="status-dot calm"></span>55% 남음 · 학습 중</p></div>
+              <div class="pct">55%</div>
+            </div>
+
+            <div class="inv-row">
+              <svg class="vessel-svg" width="34" height="42" viewBox="0 0 34 42" fill="none">
+                <defs><clipPath id="r6"><path d="M4 5H30L27.5 38C27.5 39.4 26.4 40.5 25 40.5H9C7.6 40.5 6.5 39.4 6.5 38L4 5Z"/></clipPath></defs>
+                <path d="M4 5H30L27.5 38C27.5 39.4 26.4 40.5 25 40.5H9C7.6 40.5 6.5 39.4 6.5 38L4 5Z" stroke="#E4DFD3" stroke-width="1.6" fill="#F1EEE7"/>
+                <g clip-path="url(#r6)"><rect x="2" y="9" width="30" height="33" fill="#0E3B3E"/></g>
+                <path d="M2 5H32" stroke="#B9B2A0" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <div class="body"><p class="name">커피 원두 1kg</p><p class="meta"><span class="status-dot calm"></span>70% 남음 · 여유</p></div>
+              <div class="pct">70%</div>
+            </div>
+
+          </div>
+        </div>
+
+        <nav class="bottom-nav">
+          <div class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M4 10L12 4L20 10V19C20 19.55 19.55 20 19 20H15C14.45 20 14 19.55 14 19V14H10V19C10 19.55 9.55 20 9 20H5C4.45 20 4 19.55 4 19V10Z" stroke="#9A9D9F" stroke-width="1.8"/></svg>
+            오늘
+          </div>
+          <div class="nav-item active">
+            <svg viewBox="0 0 24 24" fill="none"><rect x="4" y="9" width="16" height="11" rx="1.5" fill="#0E3B3E"/><path d="M4 9L6 4H18L20 9" stroke="#0E3B3E" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 13H15" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>
+            재고
+          </div>
+          <div class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#9A9D9F" stroke-width="1.8"/><path d="M12 8V16M8 12H16" stroke="#9A9D9F" stroke-width="1.8" stroke-linecap="round"/></svg>
+            등록
+          </div>
+          <div class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none"><circle cx="6" cy="6" r="1.6" fill="#9A9D9F"/><circle cx="6" cy="12" r="1.6" fill="#9A9D9F"/><circle cx="6" cy="18" r="1.6" fill="#9A9D9F"/><path d="M11 6H19M11 12H19M11 18H19" stroke="#9A9D9F" stroke-width="1.8" stroke-linecap="round"/></svg>
+            전체
+          </div>
+        </nav>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN 4: 등록 탭 ============ -->
+  <div class="frame-block">
+    <p class="frame-label">4 · 등록 탭 — 빠른 시작 + 직접 입력</p>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen">
+        <div class="status-bar"><span>9:41</span><span>●●●●  🔋</span></div>
+        <div class="reg-screen">
+          <div class="reg-header">
+            <h2>등록</h2>
+            <p class="sub">자주 사는 것부터 빠르게 시작해 보세요</p>
+          </div>
+
+          <p class="reg-section-title">빠른 시작</p>
+          <div class="preset-grid">
+            <div class="preset-card">
+              <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="7" y="4" width="10" height="17" rx="2" stroke="#0E3B3E" stroke-width="1.6"/><path d="M9 4V2H15V4" stroke="#0E3B3E" stroke-width="1.6"/></svg></div>
+              <p class="lbl">세탁세제</p>
+            </div>
+            <div class="preset-card">
+              <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 10L12 4L20 10V19C20 19.55 19.55 20 19 20H15C14.45 20 14 19.55 14 19V14H10V19C10 19.55 9.55 20 9 20H5C4.45 20 4 19.55 4 19V10Z" stroke="#0E3B3E" stroke-width="1.6"/></svg></div>
+              <p class="lbl">화장지</p>
+            </div>
+            <div class="preset-card">
+              <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M8 4H16L18 20H6L8 4Z" stroke="#0E3B3E" stroke-width="1.6"/></svg></div>
+              <p class="lbl">기저귀</p>
+            </div>
+            <div class="preset-card">
+              <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="7" stroke="#0E3B3E" stroke-width="1.6"/></svg></div>
+              <p class="lbl">분유</p>
+            </div>
+            <div class="preset-card">
+              <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M8 6H16L17 21H7L8 6Z" stroke="#0E3B3E" stroke-width="1.6"/><path d="M10 6V4H14V6" stroke="#0E3B3E" stroke-width="1.6"/></svg></div>
+              <p class="lbl">주방세제</p>
+            </div>
+            <div class="preset-card">
+              <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="6" y="5" width="12" height="16" rx="2" stroke="#0E3B3E" stroke-width="1.6"/></svg></div>
+              <p class="lbl">분리수거<br/>봉투</p>
+            </div>
+          </div>
+
+          <div class="manual-entry">
+            <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 5V19M5 12H19" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg></div>
+            <div class="t"><p class="n">목록에 없는 물건 직접 등록</p><p class="d">이름 · 용량 · 사진으로 3분이면 끝나요</p></div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 6L15 12L9 18" stroke="#62666B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+
+          <div class="form-preview">
+            <div class="fh">직접 입력 미리보기</div>
+            <div class="field"><label>물건 이름</label><div class="val placeholder">예: 섬유유연제</div></div>
+            <div class="field"><label>분류</label><div class="val">생활용품</div></div>
+            <div class="field"><label>구매 단위</label><div class="val placeholder">예: 1.8L</div></div>
+            <div class="field"><label>현재 남은 양</label><div class="val placeholder">직접 입력 또는 사진 인식</div></div>
+            <button class="field-cta">등록 완료</button>
+          </div>
+        </div>
+
+        <nav class="bottom-nav">
+          <div class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M4 10L12 4L20 10V19C20 19.55 19.55 20 19 20H15C14.45 20 14 19.55 14 19V14H10V19C10 19.55 9.55 20 9 20H5C4.45 20 4 19.55 4 19V10Z" stroke="#9A9D9F" stroke-width="1.8"/></svg>
+            오늘
+          </div>
+          <div class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none"><rect x="4" y="9" width="16" height="11" rx="1.5" stroke="#9A9D9F" stroke-width="1.8"/><path d="M4 9L6 4H18L20 9" stroke="#9A9D9F" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 13H15" stroke="#9A9D9F" stroke-width="1.8" stroke-linecap="round"/></svg>
+            재고
+          </div>
+          <div class="nav-item active">
+            <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="#0E3B3E"/><path d="M12 8V16M8 12H16" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>
+            등록
+          </div>
+          <div class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none"><circle cx="6" cy="6" r="1.6" fill="#9A9D9F"/><circle cx="6" cy="12" r="1.6" fill="#9A9D9F"/><circle cx="6" cy="18" r="1.6" fill="#9A9D9F"/><path d="M11 6H19M11 12H19M11 18H19" stroke="#9A9D9F" stroke-width="1.8" stroke-linecap="round"/></svg>
+            전체
+          </div>
+        </nav>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

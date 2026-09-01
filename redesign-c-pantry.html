@@ -1,0 +1,891 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SICAS 시안 C — 우리집 팬트리</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Do+Hyeon&family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg-deep: #1F3B2C;
+    --bg-deep-2: #16291F;
+    --shelf-wood: #7A5233;
+    --shelf-wood-dark: #5E3E26;
+    --cream: #FBF3E1;
+    --butter: #F4E3B2;
+    --butter-2: #EBCE86;
+    --ink: #22301F;
+    --terracotta: #E2703A;
+    --terracotta-dark: #B4501F;
+    --mustard: #E3A72D;
+    --sky: #4C8C8A;
+    --berry: #C1436B;
+    --line: #22301F;
+    --paper: #FFFDF7;
+    --danger: #D3502B;
+    --ok: #4C8C6C;
+    --warn: #E3A72D;
+    font-family: "Nanum Gothic", sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0;
+    background: #0E1B14;
+    color: var(--cream);
+    font-family: "Nanum Gothic", sans-serif;
+    padding: 32px 0 80px;
+  }
+  h1.headline{
+    font-family:"Do Hyeon", sans-serif;
+    text-align:center;
+    font-size: 30px;
+    letter-spacing: 0.5px;
+    color: var(--butter);
+    margin: 0 0 6px;
+  }
+  p.sub{
+    text-align:center;
+    color:#C9D9C7;
+    font-size:14px;
+    max-width: 640px;
+    margin: 0 auto 34px;
+    line-height:1.6;
+    padding: 0 20px;
+  }
+  p.sub b{ color: var(--terracotta); font-weight:800; }
+
+  .rail{
+    display:flex;
+    gap: 28px;
+    overflow-x: auto;
+    padding: 12px 28px 40px;
+    scroll-snap-type: x proximity;
+  }
+  .rail::-webkit-scrollbar{ height:10px; }
+  .rail::-webkit-scrollbar-thumb{ background:#3A5942; border-radius:6px; }
+
+  .frame-wrap{
+    scroll-snap-align: start;
+    flex: 0 0 auto;
+  }
+  .frame-label{
+    font-family:"Do Hyeon", sans-serif;
+    font-size:13px;
+    color:#9FD6B4;
+    margin-bottom:10px;
+    padding-left:4px;
+    letter-spacing:0.3px;
+  }
+  .phone{
+    width: 390px;
+    height: 844px;
+    background: var(--bg-deep);
+    border-radius: 46px;
+    border: 10px solid #0E1B14;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.55), inset 0 0 0 2px rgba(251,243,225,0.05);
+    overflow: hidden;
+    position: relative;
+    display:flex;
+    flex-direction:column;
+  }
+  .notch{
+    position:absolute;
+    top:10px; left:50%; transform:translateX(-50%);
+    width:120px; height:24px;
+    background:#0E1B14;
+    border-radius:14px;
+    z-index:50;
+  }
+  .status-row{
+    padding: 18px 24px 4px;
+    display:flex;
+    justify-content:space-between;
+    font-size:12px;
+    color: rgba(251,243,225,0.55);
+    font-weight:700;
+  }
+
+  .screen{
+    flex:1;
+    overflow-y:auto;
+    padding: 6px 20px 0;
+    position:relative;
+  }
+  .screen::-webkit-scrollbar{ width:0; }
+
+  /* Wood grain shelf backdrop texture */
+  .shelf-bg{
+    position:absolute; inset:0;
+    background-image:
+      repeating-linear-gradient(180deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 3px);
+    pointer-events:none;
+  }
+
+  /* ---- Top App Header ---- */
+  .app-top{
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 6px 2px 14px;
+  }
+  .app-logo{
+    display:flex; align-items:center; gap:8px;
+  }
+  .app-logo .mark{
+    width:30px;height:30px;border-radius:9px;
+    background: var(--terracotta);
+    display:flex; align-items:center; justify-content:center;
+    font-family:"Do Hyeon",sans-serif;
+    color: var(--bg-deep-2);
+    font-size:16px;
+    transform: rotate(-4deg);
+    box-shadow: 0 3px 0 var(--terracotta-dark);
+  }
+  .app-logo span{
+    font-family:"Do Hyeon", sans-serif;
+    font-size:17px;
+    color: var(--butter);
+    letter-spacing:0.4px;
+  }
+  .icon-btn{
+    width:38px;height:38px;border-radius:12px;
+    background: rgba(251,243,225,0.08);
+    display:flex; align-items:center; justify-content:center;
+    border: 1.5px solid rgba(251,243,225,0.15);
+  }
+
+  /* ---- Today tab ---- */
+  .date-chip{
+    font-size:12px; color:#A9CBB0; font-weight:700; margin-bottom:10px; padding-left:2px;
+  }
+  .hero-shelf{
+    background: linear-gradient(180deg, var(--shelf-wood) 0%, var(--shelf-wood) 78%, var(--shelf-wood-dark) 78%, var(--shelf-wood-dark) 100%);
+    border-radius: 26px;
+    padding: 26px 20px 0;
+    position:relative;
+    box-shadow: 0 14px 0 rgba(0,0,0,0.18), inset 0 -3px 0 rgba(0,0,0,0.25);
+    margin-bottom: 22px;
+    overflow:hidden;
+  }
+  .hero-shelf::before{
+    content:"";
+    position:absolute; left:14px; right:14px; bottom:22%;
+    height: 10px;
+    background: rgba(0,0,0,0.14);
+    border-radius:50%;
+    filter: blur(6px);
+  }
+  .hero-badge{
+    position:absolute; top:16px; right:16px;
+    background: var(--cream);
+    color: var(--ink);
+    font-family:"Do Hyeon",sans-serif;
+    font-size:12px;
+    padding:6px 12px;
+    border-radius: 20px;
+    border: 2.5px solid var(--ink);
+    transform: rotate(6deg);
+    z-index:5;
+  }
+  .hero-badge.calm{ background: var(--butter); }
+  .hero-badge.urgent{ background: var(--terracotta); color:#FFF6EA; border-color: var(--terracotta-dark); }
+
+  .hero-illust{
+    display:flex; justify-content:center; padding: 10px 0 0;
+    position:relative; z-index:2;
+  }
+  .hero-copy{
+    text-align:center;
+    padding: 4px 6px 22px;
+    position:relative; z-index:3;
+  }
+  .hero-copy .kicker{
+    font-size:12.5px; color: rgba(34,48,31,0.72); font-weight:800; margin-bottom:4px;
+  }
+  .hero-copy h2{
+    font-family:"Do Hyeon", sans-serif;
+    font-size: 24px;
+    color: var(--ink);
+    margin: 0 0 8px;
+    line-height:1.35;
+  }
+  .hero-copy h2 em{
+    font-style:normal;
+    color: var(--terracotta-dark);
+  }
+  .hero-copy .desc{
+    font-size:12.5px;
+    color: rgba(34,48,31,0.68);
+    margin-bottom:16px;
+    font-weight:700;
+  }
+
+  .cta-row{ display:flex; gap:10px; justify-content:center; padding-bottom:20px; }
+  .btn{
+    font-family:"Do Hyeon",sans-serif;
+    font-size:14.5px;
+    padding: 13px 20px;
+    border-radius:16px;
+    border: 2.5px solid var(--ink);
+    cursor:pointer;
+    letter-spacing:0.2px;
+  }
+  .btn-primary{
+    background: var(--ink);
+    color: var(--butter);
+    box-shadow: 0 4px 0 rgba(0,0,0,0.35);
+  }
+  .btn-ghost{
+    background: transparent;
+    color: var(--ink);
+    box-shadow: 0 4px 0 rgba(34,48,31,0.18);
+  }
+
+  .section-label{
+    font-family:"Do Hyeon", sans-serif;
+    font-size:14px;
+    color: var(--butter);
+    margin: 4px 2px 10px;
+    display:flex; align-items:center; gap:6px;
+  }
+  .section-label .count{
+    background: var(--terracotta);
+    color:#fff6ea;
+    font-size:11px;
+    padding:2px 8px;
+    border-radius:10px;
+    font-family:"Nanum Gothic",sans-serif;
+    font-weight:800;
+  }
+
+  .lower-shelf{
+    background: linear-gradient(180deg, var(--shelf-wood) 0%, var(--shelf-wood) 82%, var(--shelf-wood-dark) 82%, var(--shelf-wood-dark) 100%);
+    border-radius: 22px;
+    padding: 16px 14px 18px;
+    display:flex;
+    gap: 12px;
+    box-shadow: 0 8px 0 rgba(0,0,0,0.16), inset 0 -3px 0 rgba(0,0,0,0.2);
+    margin-bottom: 20px;
+  }
+  .mini-item{
+    flex:1;
+    background: var(--cream);
+    border-radius: 16px;
+    border: 2.5px solid var(--ink);
+    padding: 10px 8px 9px;
+    text-align:center;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.2);
+  }
+  .mini-item svg{ display:block; margin: 0 auto 6px; }
+  .mini-item .name{
+    font-size:11.5px; font-weight:800; color: var(--ink); margin-bottom:2px;
+  }
+  .mini-item .tag{
+    font-size:10px; font-weight:800; color: var(--terracotta-dark);
+  }
+
+  .calm-note{
+    text-align:center;
+    padding: 6px 12px 30px;
+    font-size:12.5px;
+    color:#9FD6B4;
+    line-height:1.7;
+  }
+
+  /* ---- Bottom nav ---- */
+  .bottomnav{
+    display:flex;
+    padding: 8px 10px calc(14px + env(safe-area-inset-bottom, 0px));
+    background: var(--bg-deep-2);
+    border-top: 1px solid rgba(251,243,225,0.08);
+  }
+  .navitem{
+    flex:1;
+    display:flex; flex-direction:column; align-items:center; gap:4px;
+    padding: 6px 0 2px;
+    color: rgba(251,243,225,0.42);
+    font-size: 10.5px;
+    font-weight:800;
+  }
+  .navitem.active{ color: var(--mustard); }
+  .navitem.active .navicon-wrap{
+    background: rgba(227,167,45,0.18);
+    border-radius: 12px;
+  }
+  .navicon-wrap{ padding:4px 14px; }
+
+  /* ---- Inventory tab ---- */
+  .filter-row{
+    display:flex; gap:8px; overflow-x:auto; padding: 4px 2px 18px;
+  }
+  .chip{
+    flex:0 0 auto;
+    font-size:12.5px; font-weight:800;
+    padding: 9px 16px;
+    border-radius: 20px;
+    border: 2px solid rgba(251,243,225,0.25);
+    color: rgba(251,243,225,0.75);
+    white-space:nowrap;
+  }
+  .chip.active{
+    background: var(--mustard);
+    border-color: var(--mustard);
+    color: var(--bg-deep-2);
+  }
+  .chip .dot{
+    display:inline-block; width:7px;height:7px;border-radius:50%;
+    background: var(--terracotta); margin-right:5px;
+  }
+
+  .shelf-unit{
+    background: linear-gradient(180deg, var(--shelf-wood) 0%, var(--shelf-wood) 86%, var(--shelf-wood-dark) 86%, var(--shelf-wood-dark) 100%);
+    border-radius: 20px;
+    padding: 16px 12px 16px;
+    box-shadow: 0 8px 0 rgba(0,0,0,0.16), inset 0 -3px 0 rgba(0,0,0,0.2);
+    margin-bottom: 16px;
+  }
+  .grid-2{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .pantry-card{
+    background: var(--cream);
+    border-radius: 18px;
+    border: 2.5px solid var(--ink);
+    padding: 12px 10px 11px;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.22);
+    position:relative;
+  }
+  .pantry-card .status-sticker{
+    position:absolute; top:-9px; right:-6px;
+    font-size:9.5px; font-weight:800;
+    padding:3px 8px;
+    border-radius: 10px;
+    border: 2px solid var(--ink);
+    transform: rotate(8deg);
+    font-family:"Do Hyeon",sans-serif;
+    letter-spacing:0.2px;
+  }
+  .status-sticker.low{ background: var(--terracotta); color:#FFF6EA; }
+  .status-sticker.ok{ background: var(--ok); color:#F3FFF6; }
+  .status-sticker.mid{ background: var(--warn); color: var(--ink); }
+  .pantry-card svg{ display:block; margin: 4px auto 8px; }
+  .pantry-card .name{ font-size:12.5px; font-weight:800; color: var(--ink); text-align:center; }
+  .pantry-card .meta{ font-size:10.5px; color: rgba(34,48,31,0.6); text-align:center; font-weight:700; margin-top:1px; }
+
+  /* ---- Register tab ---- */
+  .preset-shelf{
+    background: linear-gradient(180deg, var(--shelf-wood) 0%, var(--shelf-wood) 80%, var(--shelf-wood-dark) 80%, var(--shelf-wood-dark) 100%);
+    border-radius: 20px;
+    padding: 14px 12px 16px;
+    box-shadow: 0 8px 0 rgba(0,0,0,0.16), inset 0 -3px 0 rgba(0,0,0,0.2);
+    margin-bottom: 14px;
+  }
+  .preset-row-label{
+    font-family:"Do Hyeon",sans-serif;
+    font-size:12.5px;
+    color: var(--butter);
+    margin: 0 2px 8px;
+  }
+  .preset-scroll{
+    display:flex; gap:10px; overflow-x:auto;
+  }
+  .preset-card{
+    flex:0 0 auto;
+    width: 92px;
+    background: var(--cream);
+    border-radius: 16px;
+    border: 2.5px solid var(--ink);
+    padding: 10px 8px 8px;
+    text-align:center;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.22);
+  }
+  .preset-card svg{ display:block; margin:0 auto 6px; }
+  .preset-card .name{ font-size:11px; font-weight:800; color:var(--ink); }
+  .preset-card .add{
+    margin-top:6px;
+    font-size:10px; font-weight:800;
+    background: var(--terracotta);
+    color:#fff6ea;
+    border-radius:9px;
+    padding:4px 0;
+    border: 1.5px solid var(--terracotta-dark);
+  }
+  .manual-card{
+    background: var(--cream);
+    border-radius: 20px;
+    border: 2.5px solid var(--ink);
+    padding: 18px 16px;
+    box-shadow: 0 5px 0 rgba(0,0,0,0.25);
+    margin-bottom: 20px;
+  }
+  .manual-card h3{
+    font-family:"Do Hyeon",sans-serif;
+    font-size:15px;
+    color: var(--ink);
+    margin:0 0 12px;
+  }
+  .field{ margin-bottom:10px; }
+  .field label{ display:block; font-size:11px; font-weight:800; color:rgba(34,48,31,0.7); margin-bottom:5px; }
+  .field input, .field select{
+    width:100%;
+    font-family:"Nanum Gothic",sans-serif;
+    font-size:13px; font-weight:700;
+    padding: 10px 12px;
+    border-radius:11px;
+    border: 2px solid rgba(34,48,31,0.35);
+    background: var(--paper);
+    color: var(--ink);
+  }
+  .btn-block{
+    width:100%; text-align:center; margin-top:6px;
+  }
+
+  svg{ overflow:visible; }
+</style>
+</head>
+<body>
+
+<h1 class="headline">시안 C · 우리집 팬트리</h1>
+<p class="sub">
+  SICAS 모바일 리디자인 방향 C — 앱 전체를 <b>실제 찬장 선반</b>처럼 구성합니다.
+  생필품은 세제통·휴지 롤·분유캔 같은 손그림 용기 일러스트로 등장하고, 잔량은 용기 안 채움 높이로 직관적으로 읽힙니다.
+  진한 그린 배경과 크림 선반, 스티커형 상태 배지, 청키한 눌림 버튼으로 "잘 만든 키친 브랜드"급 완성도를 지향합니다.
+</p>
+
+<div class="rail">
+
+  <!-- ================= SCREEN 1: 오늘 탭 — 여유 상태 ================= -->
+  <div class="frame-wrap">
+    <div class="frame-label">① 오늘 탭 — 여유 상태</div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="status-row"><span>9:41</span><span>●●●●  Wi-Fi  87%</span></div>
+      <div class="screen">
+        <div class="app-top">
+          <div class="app-logo"><div class="mark">S</div><span>SICAS 팬트리</span></div>
+          <div class="icon-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2C10 5 6 8 6 13a6 6 0 0012 0c0-5-4-8-6-11z" stroke="#FBF3E1" stroke-width="2" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+        <div class="date-chip">9월 1일 화요일 · 오늘의 선반</div>
+
+        <div class="hero-shelf">
+          <div class="hero-badge calm">여유 있음 🌿</div>
+          <div class="hero-illust">
+            <!-- Detergent bottle, mostly full -->
+            <svg width="128" height="168" viewBox="0 0 128 168">
+              <ellipse cx="64" cy="160" rx="40" ry="7" fill="rgba(0,0,0,0.18)"/>
+              <rect x="30" y="18" width="18" height="16" rx="4" fill="#3E6E52" stroke="#22301F" stroke-width="3"/>
+              <path d="M22 40 C22 30 30 26 40 26 H70 C82 26 90 34 90 46 V140 C90 148 84 154 76 154 H36 C28 154 22 148 22 140 Z" fill="#5FA37D" stroke="#22301F" stroke-width="3.5"/>
+              <path d="M26 62 H86 V138 C86 144 81 148 75 148 H37 C31 148 26 144 26 138 Z" fill="#3E6E52"/>
+              <rect x="34" y="70" width="46" height="40" rx="8" fill="#FBF3E1" stroke="#22301F" stroke-width="2.5"/>
+              <text x="57" y="94" font-family="Do Hyeon" font-size="15" fill="#22301F" text-anchor="middle">세제</text>
+              <text x="57" y="108" font-family="Nanum Gothic" font-weight="800" font-size="10" fill="#B4501F" text-anchor="middle">76%</text>
+              <path d="M40 26 h34 v-8 a6 6 0 00-6-6 h-22 a6 6 0 00-6 6 z" fill="#3E6E52" stroke="#22301F" stroke-width="3"/>
+            </svg>
+          </div>
+          <div class="hero-copy">
+            <div class="kicker">오늘의 질문</div>
+            <h2>세제, <em>아직 여유</em> 있어요</h2>
+            <div class="desc">지금 페이스면 약 18일 뒤에 다시 채우면 돼요</div>
+            <div class="cta-row">
+              <button class="btn btn-ghost">나중에</button>
+              <button class="btn btn-primary">알겠어요 👍</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-label">선반 아래 칸 · 더 볼 것 <span class="count">2건</span></div>
+        <div class="lower-shelf">
+          <div class="mini-item">
+            <svg width="46" height="58" viewBox="0 0 46 58">
+              <rect x="8" y="6" width="30" height="46" rx="9" fill="#F4E3B2" stroke="#22301F" stroke-width="2.5"/>
+              <rect x="8" y="28" width="30" height="24" rx="9" fill="#E3A72D"/>
+              <circle cx="23" cy="14" r="4" fill="#22301F"/>
+            </svg>
+            <div class="name">휴지</div>
+            <div class="tag">12일 뒤</div>
+          </div>
+          <div class="mini-item">
+            <svg width="46" height="58" viewBox="0 0 46 58">
+              <rect x="6" y="10" width="34" height="40" rx="7" fill="#EAF1EE" stroke="#22301F" stroke-width="2.5"/>
+              <rect x="6" y="10" width="34" height="14" rx="7" fill="#4C8C8A"/>
+              <rect x="16" y="2" width="14" height="10" rx="3" fill="#4C8C8A" stroke="#22301F" stroke-width="2"/>
+            </svg>
+            <div class="name">치약</div>
+            <div class="tag">9일 뒤</div>
+          </div>
+        </div>
+
+        <p class="calm-note">오늘은 조용한 하루예요.<br/>선반이 든든하게 채워져 있어요 🧺</p>
+      </div>
+
+      <div class="bottomnav">
+        <div class="navitem active">
+          <div class="navicon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 11L12 4l8 7" stroke="#E3A72D" stroke-width="2.4" stroke-linecap="round"/><path d="M6 10v9a1 1 0 001 1h10a1 1 0 001-1v-9" stroke="#E3A72D" stroke-width="2.4"/></svg></div>
+          오늘
+        </div>
+        <div class="navitem">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2.2"/><rect x="13" y="4" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2.2"/><rect x="4" y="13" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2.2"/><rect x="13" y="13" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2.2"/></svg>
+          재고
+        </div>
+        <div class="navitem">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2.2"/><path d="M12 8v8M8 12h8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+          등록
+        </div>
+        <div class="navitem">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="4" y="5" width="16" height="14" rx="2" stroke="currentColor" stroke-width="2.2"/><path d="M4 9h16" stroke="currentColor" stroke-width="2.2"/></svg>
+          전체
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= SCREEN 2: 오늘 탭 — 임박 상태 ================= -->
+  <div class="frame-wrap">
+    <div class="frame-label">② 오늘 탭 — 임박 상태</div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="status-row"><span>9:41</span><span>●●●●  Wi-Fi  87%</span></div>
+      <div class="screen">
+        <div class="app-top">
+          <div class="app-logo"><div class="mark">S</div><span>SICAS 팬트리</span></div>
+          <div class="icon-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2C10 5 6 8 6 13a6 6 0 0012 0c0-5-4-8-6-11z" stroke="#FBF3E1" stroke-width="2" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+        <div class="date-chip">9월 1일 화요일 · 오늘의 선반</div>
+
+        <div class="hero-shelf">
+          <div class="hero-badge urgent">곧 떨어짐 ⚠️</div>
+          <div class="hero-illust">
+            <!-- Baby formula can, low fill -->
+            <svg width="118" height="168" viewBox="0 0 118 168">
+              <ellipse cx="59" cy="160" rx="38" ry="7" fill="rgba(0,0,0,0.18)"/>
+              <rect x="20" y="30" width="78" height="118" rx="14" fill="#F4E3B2" stroke="#22301F" stroke-width="3.5"/>
+              <rect x="20" y="118" width="78" height="30" rx="14" fill="#E3703A"/>
+              <rect x="20" y="118" width="78" height="10" fill="#E3703A"/>
+              <ellipse cx="59" cy="30" rx="39" ry="10" fill="#EBCE86" stroke="#22301F" stroke-width="3.5"/>
+              <ellipse cx="59" cy="27" rx="24" ry="6" fill="#FBF3E1" stroke="#22301F" stroke-width="2"/>
+              <rect x="34" y="58" width="50" height="42" rx="8" fill="#FBF3E1" stroke="#22301F" stroke-width="2.5"/>
+              <text x="59" y="80" font-family="Do Hyeon" font-size="14" fill="#22301F" text-anchor="middle">분유</text>
+              <text x="59" y="95" font-family="Nanum Gothic" font-weight="800" font-size="10" fill="#B4501F" text-anchor="middle">14%</text>
+            </svg>
+          </div>
+          <div class="hero-copy">
+            <div class="kicker">오늘의 질문</div>
+            <h2>분유, <em>이틀 안에</em> 떨어져요</h2>
+            <div class="desc">최근 소비 속도로 보면 9월 3일쯤 바닥나요</div>
+            <div class="cta-row">
+              <button class="btn btn-ghost">나중에</button>
+              <button class="btn btn-primary">지금 주문 🛒</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-label">선반 아래 칸 · 더 볼 것 <span class="count">2건</span></div>
+        <div class="lower-shelf">
+          <div class="mini-item">
+            <svg width="46" height="58" viewBox="0 0 46 58">
+              <rect x="8" y="6" width="30" height="46" rx="9" fill="#F4E3B2" stroke="#22301F" stroke-width="2.5"/>
+              <rect x="8" y="40" width="30" height="12" rx="9" fill="#E2703A"/>
+              <circle cx="23" cy="14" r="4" fill="#22301F"/>
+            </svg>
+            <div class="name">휴지</div>
+            <div class="tag" style="color:#B4501F;">3일 뒤</div>
+          </div>
+          <div class="mini-item">
+            <svg width="46" height="58" viewBox="0 0 46 58">
+              <rect x="6" y="10" width="34" height="40" rx="7" fill="#EAF1EE" stroke="#22301F" stroke-width="2.5"/>
+              <rect x="6" y="38" width="34" height="12" rx="7" fill="#C1436B"/>
+              <rect x="16" y="2" width="14" height="10" rx="3" fill="#C1436B" stroke="#22301F" stroke-width="2"/>
+            </svg>
+            <div class="name">물티슈</div>
+            <div class="tag" style="color:#B4501F;">5일 뒤</div>
+          </div>
+        </div>
+
+        <p class="calm-note">선반이 조금 가벼워졌어요.<br/>오늘 한 번 채워볼까요? 🧺</p>
+      </div>
+
+      <div class="bottomnav">
+        <div class="navitem active">
+          <div class="navicon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 11L12 4l8 7" stroke="#E3A72D" stroke-width="2.4" stroke-linecap="round"/><path d="M6 10v9a1 1 0 001 1h10a1 1 0 001-1v-9" stroke="#E3A72D" stroke-width="2.4"/></svg></div>
+          오늘
+        </div>
+        <div class="navitem">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2.2"/><rect x="13" y="4" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2.2"/><rect x="4" y="13" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2.2"/><rect x="13" y="13" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2.2"/></svg>
+          재고
+        </div>
+        <div class="navitem">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2.2"/><path d="M12 8v8M8 12h8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+          등록
+        </div>
+        <div class="navitem">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="4" y="5" width="16" height="14" rx="2" stroke="currentColor" stroke-width="2.2"/><path d="M4 9h16" stroke="currentColor" stroke-width="2.2"/></svg>
+          전체
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= SCREEN 3: 재고 탭 ================= -->
+  <div class="frame-wrap">
+    <div class="frame-label">③ 재고 탭 — 선반 그리드</div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="status-row"><span>9:41</span><span>●●●●  Wi-Fi  87%</span></div>
+      <div class="screen">
+        <div class="app-top">
+          <div class="app-logo"><div class="mark">S</div><span>우리집 재고</span></div>
+          <div class="icon-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#FBF3E1" stroke-width="2.2"/><path d="M21 21l-4.3-4.3" stroke="#FBF3E1" stroke-width="2.2" stroke-linecap="round"/></svg>
+          </div>
+        </div>
+
+        <div class="filter-row">
+          <div class="chip active">전체 32</div>
+          <div class="chip"><span class="dot"></span>부족 4</div>
+          <div class="chip">주방</div>
+          <div class="chip">욕실</div>
+          <div class="chip">육아</div>
+          <div class="chip">세탁</div>
+        </div>
+
+        <div class="shelf-unit">
+          <div class="grid-2">
+            <div class="pantry-card">
+              <div class="status-sticker low">부족</div>
+              <svg width="58" height="66" viewBox="0 0 58 66">
+                <rect x="10" y="16" width="38" height="46" rx="10" fill="#F4E3B2" stroke="#22301F" stroke-width="2.8"/>
+                <rect x="10" y="52" width="38" height="10" rx="10" fill="#E2703A"/>
+                <rect x="20" y="6" width="18" height="12" rx="4" fill="#EBCE86" stroke="#22301F" stroke-width="2.5"/>
+              </svg>
+              <div class="name">키친타월</div>
+              <div class="meta">약 2일분 남음</div>
+            </div>
+            <div class="pantry-card">
+              <div class="status-sticker ok">여유</div>
+              <svg width="58" height="66" viewBox="0 0 58 66">
+                <path d="M14 22 C14 16 19 12 26 12 H32 C40 12 46 18 46 26 V56 C46 60 43 63 39 63 H21 C17 63 14 60 14 56 Z" fill="#5FA37D" stroke="#22301F" stroke-width="2.8"/>
+                <path d="M17 30 H43 V56 C43 59 40 61 37 61 H23 C20 61 17 59 17 56 Z" fill="#3E6E52"/>
+                <rect x="24" y="12" width="10" height="8" fill="#3E6E52" stroke="#22301F" stroke-width="2"/>
+              </svg>
+              <div class="name">주방세제</div>
+              <div class="meta">약 21일분 남음</div>
+            </div>
+            <div class="pantry-card">
+              <div class="status-sticker mid">보통</div>
+              <svg width="58" height="66" viewBox="0 0 58 66">
+                <rect x="12" y="10" width="34" height="46" rx="8" fill="#EAF1EE" stroke="#22301F" stroke-width="2.8"/>
+                <rect x="12" y="34" width="34" height="22" rx="8" fill="#4C8C8A"/>
+                <rect x="20" y="2" width="18" height="10" rx="3" fill="#4C8C8A" stroke="#22301F" stroke-width="2"/>
+              </svg>
+              <div class="name">치약</div>
+              <div class="meta">약 9일분 남음</div>
+            </div>
+            <div class="pantry-card">
+              <div class="status-sticker low">부족</div>
+              <svg width="58" height="66" viewBox="0 0 58 66">
+                <rect x="10" y="8" width="38" height="50" rx="12" fill="#F4E3B2" stroke="#22301F" stroke-width="2.8"/>
+                <rect x="10" y="48" width="38" height="10" rx="12" fill="#C1436B"/>
+                <circle cx="29" cy="18" r="4.5" fill="#22301F"/>
+              </svg>
+              <div class="name">두루마리 휴지</div>
+              <div class="meta">약 3일분 남음</div>
+            </div>
+            <div class="pantry-card">
+              <div class="status-sticker ok">여유</div>
+              <svg width="58" height="66" viewBox="0 0 58 66">
+                <rect x="8" y="18" width="42" height="42" rx="10" fill="#F4E3B2" stroke="#22301F" stroke-width="2.8"/>
+                <rect x="8" y="24" width="42" height="8" fill="#E3703A"/>
+                <ellipse cx="29" cy="18" rx="21" ry="6" fill="#EBCE86" stroke="#22301F" stroke-width="2.5"/>
+              </svg>
+              <div class="name">분유</div>
+              <div class="meta">약 18일분 남음</div>
+            </div>
+            <div class="pantry-card">
+              <div class="status-sticker mid">보통</div>
+              <svg width="58" height="66" viewBox="0 0 58 66">
+                <rect x="16" y="8" width="26" height="52" rx="8" fill="#EAF1EE" stroke="#22301F" stroke-width="2.8"/>
+                <rect x="16" y="34" width="26" height="26" rx="8" fill="#E3A72D"/>
+                <circle cx="29" cy="20" r="5" fill="#B4501F"/>
+              </svg>
+              <div class="name">섬유유연제</div>
+              <div class="meta">약 11일분 남음</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="shelf-unit" style="margin-bottom:24px;">
+          <div class="grid-2">
+            <div class="pantry-card">
+              <div class="status-sticker ok">여유</div>
+              <svg width="58" height="66" viewBox="0 0 58 66">
+                <rect x="10" y="14" width="38" height="48" rx="9" fill="#F4E3B2" stroke="#22301F" stroke-width="2.8"/>
+                <rect x="10" y="18" width="38" height="10" fill="#4C8C8A"/>
+                <rect x="20" y="4" width="18" height="12" rx="4" fill="#EBCE86" stroke="#22301F" stroke-width="2.5"/>
+              </svg>
+              <div class="name">샴푸</div>
+              <div class="meta">약 24일분 남음</div>
+            </div>
+            <div class="pantry-card">
+              <div class="status-sticker ok">여유</div>
+              <svg width="58" height="66" viewBox="0 0 58 66">
+                <rect x="12" y="16" width="34" height="44" rx="16" fill="#F4E3B2" stroke="#22301F" stroke-width="2.8"/>
+                <rect x="12" y="20" width="34" height="8" fill="#C1436B"/>
+                <rect x="22" y="6" width="14" height="12" rx="3" fill="#EBCE86" stroke="#22301F" stroke-width="2.5"/>
+              </svg>
+              <div class="name">바디워시</div>
+              <div class="meta">약 30일분 남음</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bottomnav">
+        <div class="navitem">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 11L12 4l8 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M6 10v9a1 1 0 001 1h10a1 1 0 001-1v-9" stroke="currentColor" stroke-width="2.2"/></svg>
+          오늘
+        </div>
+        <div class="navitem active">
+          <div class="navicon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="7" height="7" rx="1.5" stroke="#E3A72D" stroke-width="2.4"/><rect x="13" y="4" width="7" height="7" rx="1.5" stroke="#E3A72D" stroke-width="2.4"/><rect x="4" y="13" width="7" height="7" rx="1.5" stroke="#E3A72D" stroke-width="2.4"/><rect x="13" y="13" width="7" height="7" rx="1.5" stroke="#E3A72D" stroke-width="2.4"/></svg></div>
+          재고
+        </div>
+        <div class="navitem">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2.2"/><path d="M12 8v8M8 12h8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+          등록
+        </div>
+        <div class="navitem">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="4" y="5" width="16" height="14" rx="2" stroke="currentColor" stroke-width="2.2"/><path d="M4 9h16" stroke="currentColor" stroke-width="2.2"/></svg>
+          전체
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= SCREEN 4: 등록 탭 ================= -->
+  <div class="frame-wrap">
+    <div class="frame-label">④ 등록 탭 — 빠른 시작 + 직접 입력</div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="status-row"><span>9:41</span><span>●●●●  Wi-Fi  87%</span></div>
+      <div class="screen">
+        <div class="app-top">
+          <div class="app-logo"><div class="mark">S</div><span>선반 채우기</span></div>
+          <div class="icon-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="#FBF3E1" stroke-width="2.2" stroke-linecap="round"/></svg>
+          </div>
+        </div>
+
+        <div class="preset-shelf">
+          <div class="preset-row-label">🧴 욕실 선반 빠른 시작</div>
+          <div class="preset-scroll">
+            <div class="preset-card">
+              <svg width="44" height="52" viewBox="0 0 44 52">
+                <rect x="8" y="10" width="28" height="38" rx="7" fill="#EAF1EE" stroke="#22301F" stroke-width="2.4"/>
+                <rect x="8" y="14" width="28" height="8" fill="#4C8C8A"/>
+                <rect x="15" y="2" width="14" height="10" rx="3" fill="#EBCE86" stroke="#22301F" stroke-width="2"/>
+              </svg>
+              <div class="name">샴푸</div>
+              <div class="add">+ 담기</div>
+            </div>
+            <div class="preset-card">
+              <svg width="44" height="52" viewBox="0 0 44 52">
+                <rect x="10" y="6" width="24" height="40" rx="8" fill="#F4E3B2" stroke="#22301F" stroke-width="2.4"/>
+                <rect x="10" y="38" width="24" height="8" rx="8" fill="#C1436B"/>
+                <circle cx="22" cy="14" r="3.5" fill="#22301F"/>
+              </svg>
+              <div class="name">치약</div>
+              <div class="add">+ 담기</div>
+            </div>
+            <div class="preset-card">
+              <svg width="44" height="52" viewBox="0 0 44 52">
+                <rect x="8" y="12" width="28" height="36" rx="14" fill="#F4E3B2" stroke="#22301F" stroke-width="2.4"/>
+                <rect x="8" y="16" width="28" height="7" fill="#C1436B"/>
+                <rect x="16" y="4" width="12" height="10" rx="3" fill="#EBCE86" stroke="#22301F" stroke-width="2"/>
+              </svg>
+              <div class="name">바디워시</div>
+              <div class="add">+ 담기</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="preset-shelf">
+          <div class="preset-row-label">🍼 육아 선반 빠른 시작</div>
+          <div class="preset-scroll">
+            <div class="preset-card">
+              <svg width="44" height="52" viewBox="0 0 44 52">
+                <rect x="8" y="10" width="28" height="38" rx="6" fill="#F4E3B2" stroke="#22301F" stroke-width="2.4"/>
+                <rect x="8" y="36" width="28" height="12" fill="#E3703A"/>
+                <ellipse cx="22" cy="10" rx="14" ry="4" fill="#EBCE86" stroke="#22301F" stroke-width="2"/>
+              </svg>
+              <div class="name">분유</div>
+              <div class="add">+ 담기</div>
+            </div>
+            <div class="preset-card">
+              <svg width="44" height="52" viewBox="0 0 44 52">
+                <rect x="6" y="14" width="32" height="30" rx="6" fill="#EAF1EE" stroke="#22301F" stroke-width="2.4"/>
+                <rect x="6" y="30" width="32" height="14" rx="6" fill="#C1436B"/>
+                <rect x="13" y="6" width="18" height="10" rx="3" fill="#C1436B" stroke="#22301F" stroke-width="2"/>
+              </svg>
+              <div class="name">물티슈</div>
+              <div class="add">+ 담기</div>
+            </div>
+            <div class="preset-card">
+              <svg width="44" height="52" viewBox="0 0 44 52">
+                <rect x="9" y="8" width="26" height="40" rx="7" fill="#F4E3B2" stroke="#22301F" stroke-width="2.4"/>
+                <rect x="9" y="34" width="26" height="14" rx="7" fill="#4C8C8A"/>
+                <circle cx="22" cy="16" r="3.5" fill="#22301F"/>
+              </svg>
+              <div class="name">기저귀</div>
+              <div class="add">+ 담기</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="manual-card">
+          <h3>✏️ 직접 입력</h3>
+          <div class="field">
+            <label>물건 이름</label>
+            <input type="text" placeholder="예: 섬유유연제" />
+          </div>
+          <div class="field">
+            <label>분류</label>
+            <select><option>세탁</option><option>주방</option><option>욕실</option><option>육아</option></select>
+          </div>
+          <div class="field">
+            <label>지금 남은 양</label>
+            <input type="text" placeholder="예: 70%" />
+          </div>
+          <button class="btn btn-primary btn-block">선반에 올리기 🧺</button>
+        </div>
+      </div>
+
+      <div class="bottomnav">
+        <div class="navitem">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 11L12 4l8 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M6 10v9a1 1 0 001 1h10a1 1 0 001-1v-9" stroke="currentColor" stroke-width="2.2"/></svg>
+          오늘
+        </div>
+        <div class="navitem">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2.2"/><rect x="13" y="4" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2.2"/><rect x="4" y="13" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2.2"/><rect x="13" y="13" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="2.2"/></svg>
+          재고
+        </div>
+        <div class="navitem active">
+          <div class="navicon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#E3A72D" stroke-width="2.4"/><path d="M12 8v8M8 12h8" stroke="#E3A72D" stroke-width="2.4" stroke-linecap="round"/></svg></div>
+          등록
+        </div>
+        <div class="navitem">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="4" y="5" width="16" height="14" rx="2" stroke="currentColor" stroke-width="2.2"/><path d="M4 9h16" stroke="currentColor" stroke-width="2.2"/></svg>
+          전체
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

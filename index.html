@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<title>SICAS 모바일 리디자인 시안 3종</title>
+<style>
+  :root {
+    --ink: #1b2230;
+    --muted: #5b6474;
+    --paper: #f4f5f7;
+    --card: #ffffff;
+    --line: #e2e5ea;
+    --teal: #0e3b3e;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", Pretendard, "Segoe UI", sans-serif;
+    background: var(--paper); color: var(--ink);
+    padding: 48px 24px 80px;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; }
+  .eyebrow { font-size: 13px; font-weight: 700; letter-spacing: .12em; color: var(--teal); text-transform: uppercase; }
+  h1 { font-size: 32px; font-weight: 800; margin: 10px 0 8px; }
+  .lede { font-size: 15px; color: var(--muted); line-height: 1.7; max-width: 640px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 36px; }
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+    padding: 26px; display: flex; flex-direction: column; gap: 12px;
+  }
+  .tag { align-self: flex-start; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; }
+  .tag.evo { background: #e6ecf2; color: #16202b; }
+  .tag.rad { background: #fdeadd; color: #8a4416; }
+  .card h2 { font-size: 21px; font-weight: 800; }
+  .card .sub { font-size: 13px; color: var(--muted); font-weight: 600; }
+  .card p { font-size: 14px; color: var(--muted); line-height: 1.7; flex: 1; }
+  .swatches { display: flex; gap: 6px; }
+  .swatches span { width: 22px; height: 22px; border-radius: 6px; border: 1px solid rgba(0,0,0,.08); }
+  a.open {
+    display: block; text-align: center; text-decoration: none;
+    background: var(--teal); color: #fff; font-weight: 700; font-size: 15px;
+    padding: 13px 0; border-radius: 12px; margin-top: 6px;
+  }
+  a.open:hover { opacity: .92; }
+  .note { margin-top: 40px; font-size: 13px; color: var(--muted); line-height: 1.7; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">SICAS · Design Proposals</div>
+  <h1>모바일 리디자인 시안 3종</h1>
+  <p class="lede">
+    SICAS는 "우리 집 물건의 다음 행동을 알려주는" 반복 구매 도우미입니다.
+    단순화한 4탭 구조(오늘 · 재고 · 등록 · 전체)를 전제로, 연장선 1안과 급진안 2안을 나란히 비교합니다.
+    각 시안은 오늘 탭(여유/임박) · 재고 · 등록 4개 화면을 담고 있습니다.
+  </p>
+
+  <div class="grid">
+    <div class="card">
+      <span class="tag evo">A · 현 방향의 완성형</span>
+      <h2>Warm Companion</h2>
+      <div class="sub">상태 색면 + 통(vessel) 잔량 시각화</div>
+      <div class="swatches">
+        <span style="background:#E6ECF2"></span><span style="background:#F7DFA8"></span>
+        <span style="background:#8E2F26"></span><span style="background:#0E3B3E"></span>
+      </div>
+      <p>
+        재고 상태에 따라 화면 전체 색이 바뀌는 현 문법을 유지하면서, 종이 결 텍스처와
+        손그림 톤의 용기 일러스트로 온기를 더한 안. 잔량이 통의 채움 높이로 즉시 읽힙니다.
+        기존 디자인 토큰과 호환되어 적용 비용이 가장 낮습니다.
+      </p>
+      <a class="open" href="./redesign-a-companion.html">시안 A 열어보기</a>
+    </div>
+
+    <div class="card">
+      <span class="tag rad">B · 급진안</span>
+      <h2>오늘의 쪽지</h2>
+      <div class="sub">에디토리얼 · 문장이 곧 인터페이스</div>
+      <div class="swatches">
+        <span style="background:#f7f3ea"></span><span style="background:#2a241c"></span>
+        <span style="background:#cfe3c6"></span><span style="background:#f4d2b4"></span>
+      </div>
+      <p>
+        앱이 아침 식탁에 놓인 쪽지처럼 읽히는 안. 카드와 색면을 걷어내고 세리프 헤드라인과
+        괘선·여백만으로 구조를 만듭니다. "휴지가 이틀 뒤에 떨어져요" 같은 완결된 문장 속
+        형광펜 하이라이트가 탭 가능한 액션입니다.
+      </p>
+      <a class="open" href="./redesign-b-note.html">시안 B 열어보기</a>
+    </div>
+
+    <div class="card">
+      <span class="tag rad">C · 급진안</span>
+      <h2>우리집 팬트리</h2>
+      <div class="sub">선반 메타포 · 물성 강조 플레이풀</div>
+      <div class="swatches">
+        <span style="background:#1F3B2C"></span><span style="background:#FBF3E1"></span>
+        <span style="background:#E2703A"></span><span style="background:#E3A72D"></span>
+      </div>
+      <p>
+        앱 전체가 찬장 선반처럼 느껴지는 안. 물건마다 귀여운 용기 일러스트가 있고 잔량이
+        채움 높이로 보이며, 상태는 살짝 기울어진 스티커 배지로 표시됩니다. 딥 그린 배경 위
+        크림 선반 — 잘 만든 키친 브랜드의 감성을 지향합니다.
+      </p>
+      <a class="open" href="./redesign-c-pantry.html">시안 C 열어보기</a>
+    </div>
+  </div>
+
+  <p class="note">
+    각 시안 페이지는 390×844 폰 프레임 4개를 가로 스크롤로 나열합니다.
+    데스크톱에서 좌우로 스크롤해 화면 흐름(오늘 여유 → 오늘 임박 → 재고 → 등록)을 확인하세요.
+  </p>
+</div>
+</body>
+</html>

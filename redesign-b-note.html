@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SICAS 리디자인 시안 B — 오늘의 쪽지</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Serif+KR:wght@400;500;600;700&family=Pretendard+Variable:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --paper:#f7f3ea;
+    --paper-alt:#f2ede1;
+    --ink:#2a241c;
+    --ink-soft:#5c5344;
+    --rule:#d9d0bd;
+    --ease-green:#4d6a4a;
+    --ease-green-hi:#cfe3c6;
+    --urgent-amber:#b0522a;
+    --urgent-amber-hi:#f4d2b4;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:#e9e3d3;
+    font-family:'Pretendard Variable','Pretendard',-apple-system,sans-serif;
+    color:var(--ink);
+    padding:40px 24px 80px;
+  }
+  .intro{
+    max-width:1200px;
+    margin:0 auto 32px;
+    padding:20px 24px;
+    background:var(--paper);
+    border:1px solid var(--rule);
+    border-radius:4px;
+  }
+  .intro h1{
+    font-family:'Noto Serif KR',serif;
+    font-size:22px;
+    margin:0 0 6px;
+    font-weight:700;
+  }
+  .intro p{
+    margin:0;
+    font-size:14px;
+    color:var(--ink-soft);
+    line-height:1.6;
+  }
+  .gallery{
+    display:flex;
+    gap:28px;
+    overflow-x:auto;
+    padding:8px 4px 24px;
+    max-width:1200px;
+    margin:0 auto;
+    scroll-snap-type:x proximity;
+  }
+  .frame-label{
+    font-family:'Noto Serif KR',serif;
+    font-size:13px;
+    color:var(--ink-soft);
+    margin-bottom:10px;
+    letter-spacing:.02em;
+  }
+  .frame-wrap{
+    scroll-snap-align:start;
+    flex:0 0 auto;
+  }
+  .phone{
+    width:390px;
+    height:844px;
+    background:var(--paper);
+    border-radius:38px;
+    border:6px solid #1d1912;
+    box-shadow:0 20px 50px rgba(0,0,0,.25);
+    overflow:hidden;
+    position:relative;
+    display:flex;
+    flex-direction:column;
+  }
+  .statusbar{
+    height:46px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 26px;
+    font-size:13px;
+    font-weight:600;
+    color:var(--ink);
+    flex-shrink:0;
+  }
+  .content{
+    flex:1;
+    overflow-y:auto;
+    padding:8px 28px 20px;
+  }
+  .content::-webkit-scrollbar{display:none;}
+
+  .date-line{
+    font-size:12px;
+    color:var(--ink-soft);
+    letter-spacing:.06em;
+    margin-bottom:2px;
+  }
+  .date-line::before{
+    content:"✦ ";
+  }
+  .greeting{
+    font-family:'Noto Serif KR',serif;
+    font-size:15px;
+    color:var(--ink-soft);
+    margin:6px 0 22px;
+    font-weight:500;
+  }
+
+  .hairline{
+    border:none;
+    border-top:1px solid var(--rule);
+    margin:20px 0;
+  }
+
+  /* --- The note headline sentence with inline highlighted action --- */
+  .note-sentence{
+    font-family:'Gowun Batang', 'Noto Serif KR', serif;
+    font-size:26px;
+    line-height:1.62;
+    color:var(--ink);
+    letter-spacing:-0.01em;
+  }
+  .note-sentence .item{
+    font-weight:700;
+  }
+  .hl{
+    position:relative;
+    white-space:nowrap;
+    padding:0 2px;
+    cursor:pointer;
+    font-weight:700;
+  }
+  .hl-ease{ text-decoration: underline solid var(--ease-green) 2px; text-underline-offset:6px; }
+  .hl-ease::before{
+    content:"";
+    position:absolute;
+    inset:2px -2px;
+    background:var(--ease-green-hi);
+    opacity:.6;
+    z-index:-1;
+    transform:rotate(-0.6deg);
+    border-radius:2px;
+  }
+  .hl-urgent{ text-decoration: underline solid var(--urgent-amber) 2px; text-underline-offset:6px; }
+  .hl-urgent::before{
+    content:"";
+    position:absolute;
+    inset:2px -2px;
+    background:var(--urgent-amber-hi);
+    opacity:.7;
+    z-index:-1;
+    transform:rotate(-0.6deg);
+    border-radius:2px;
+  }
+
+  .sub-note{
+    font-size:14px;
+    color:var(--ink-soft);
+    margin-top:14px;
+    line-height:1.6;
+  }
+
+  .stamp{
+    display:inline-block;
+    margin-top:22px;
+    font-size:12px;
+    padding:5px 10px;
+    border:1px solid var(--ease-green);
+    color:var(--ease-green);
+    border-radius:20px;
+    font-weight:600;
+  }
+  .stamp.urgent{ border-color:var(--urgent-amber); color:var(--urgent-amber); }
+
+  .ps-block{
+    margin-top:34px;
+    padding-top:18px;
+    border-top:1px dashed var(--rule);
+  }
+  .ps-label{
+    font-family:'Gowun Batang',serif;
+    font-size:15px;
+    color:var(--ink-soft);
+    font-style:italic;
+    margin-bottom:10px;
+  }
+  .ps-item{
+    font-size:14px;
+    line-height:1.7;
+    margin-bottom:6px;
+  }
+  .ps-item .hl{ font-size:14px; font-weight:600; }
+
+  /* --- Inventory / ledger tab --- */
+  .ledger-title{
+    font-family:'Noto Serif KR',serif;
+    font-size:20px;
+    font-weight:700;
+    margin:4px 0 16px;
+  }
+  .filters{
+    display:flex;
+    gap:18px;
+    font-size:13px;
+    color:var(--ink-soft);
+    margin-bottom:6px;
+    flex-wrap:wrap;
+  }
+  .filters .chip{
+    cursor:pointer;
+    padding-bottom:3px;
+  }
+  .filters .chip.active{
+    color:var(--ink);
+    font-weight:700;
+    text-decoration:underline solid var(--urgent-amber) 2px;
+    text-underline-offset:5px;
+  }
+  .ledger-list{
+    margin-top:14px;
+  }
+  .ledger-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    padding:13px 0;
+    border-bottom:1px solid var(--rule);
+    font-size:15px;
+  }
+  .ledger-row .name{
+    font-family:'Noto Serif KR',serif;
+    font-weight:500;
+  }
+  .ledger-row .meta{
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-top:3px;
+    font-family:'Pretendard Variable',sans-serif;
+  }
+  .ledger-row .status{
+    font-size:12px;
+    font-weight:700;
+    white-space:nowrap;
+  }
+  .status.ease{ color:var(--ease-green); }
+  .status.urgent{ color:var(--urgent-amber); }
+  .ledger-row .right{ text-align:right; }
+
+  /* --- Register tab --- */
+  .section-title{
+    font-family:'Noto Serif KR',serif;
+    font-size:17px;
+    font-weight:700;
+    margin:24px 0 12px;
+  }
+  .section-title:first-of-type{ margin-top:4px; }
+  .preset-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+  }
+  .preset-card{
+    border:1px solid var(--rule);
+    background:var(--paper-alt);
+    border-radius:6px;
+    padding:14px 12px;
+    text-align:center;
+    cursor:pointer;
+  }
+  .preset-card .emoji{ font-size:22px; display:block; margin-bottom:6px; }
+  .preset-card .label{
+    font-family:'Noto Serif KR',serif;
+    font-size:14px;
+    font-weight:600;
+  }
+  .manual-entry{
+    margin-top:6px;
+    border:1px dashed var(--rule);
+    border-radius:6px;
+    padding:16px;
+  }
+  .field-line{
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+    padding:10px 0;
+    border-bottom:1px solid var(--rule);
+    font-size:14px;
+  }
+  .field-line:last-child{ border-bottom:none; }
+  .field-line .label{ color:var(--ink-soft); flex:0 0 64px; }
+  .field-line .value{
+    flex:1;
+    font-family:'Noto Serif KR',serif;
+  }
+  .field-line .value.placeholder{ color:#a99f8c; font-family:'Pretendard Variable',sans-serif; }
+  .submit-note{
+    margin-top:18px;
+    text-align:center;
+    font-size:14px;
+  }
+
+  /* --- Bottom nav --- */
+  .tabbar{
+    flex-shrink:0;
+    display:flex;
+    justify-content:space-around;
+    align-items:center;
+    padding:10px 8px calc(10px + env(safe-area-inset-bottom));
+    border-top:1px solid var(--rule);
+    background:var(--paper);
+  }
+  .tab{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:4px;
+    color:var(--ink-soft);
+    font-size:11px;
+    width:70px;
+  }
+  .tab svg{ width:22px; height:22px; }
+  .tab.active{ color:var(--ink); font-weight:700; }
+  .tab.active svg{ stroke:var(--urgent-amber); }
+  .tab svg{ stroke:var(--ink-soft); fill:none; stroke-width:1.6; }
+</style>
+</head>
+<body>
+
+<div class="intro">
+  <h1>시안 B — 오늘의 쪽지 (에디토리얼 / 대화형)</h1>
+  <p>매일 아침 식탁에 놓인 손글씨 쪽지처럼 읽히는 SICAS. 타이포그래피가 곧 UI입니다 — 완결된 문장 속 형광펜 밑줄이 탭 가능한 액션이며, 상태는 오직 하나의 색(여유=초록, 임박=주홍)으로만 구분됩니다. 카드 대신 괘선과 여백으로 구조를 만듭니다.</p>
+</div>
+
+<div class="gallery">
+
+  <!-- 1. 오늘 탭 — 여유 상태 -->
+  <div class="frame-wrap">
+    <div class="frame-label">1 · 오늘 탭 — 여유 상태</div>
+    <div class="phone">
+      <div class="statusbar"><span>9:41</span><span>●●●●  Wi-Fi  🔋</span></div>
+      <div class="content">
+        <div class="date-line">9월 1일 화요일 아침</div>
+        <div class="greeting">잘 지내고 계신가요? 오늘의 집안 소식을 전해요.</div>
+        <hr class="hairline" />
+        <p class="note-sentence">
+          <span class="item">주방세제</span>는 아직 <span class="hl hl-ease">18일</span> 여유가 있어요.
+          지난주 사용 속도 그대로라면 <span class="hl hl-ease">9월 19일쯤</span> 다시 채우시면 됩니다.
+        </p>
+        <p class="sub-note">서두르지 않으셔도 돼요. 이번엔 그냥 알려드리는 소식이에요.</p>
+        <span class="stamp">오늘은 여유 있음</span>
+        <div class="ps-block">
+          <div class="ps-label">P.S. 참고로 이런 것들도 있어요</div>
+          <div class="ps-item">· <span class="hl hl-ease">키친타올</span> — 12일 남음, 아직 넉넉해요.</div>
+          <div class="ps-item">· <span class="hl hl-ease">샴푸</span> — 21일 남음, 여유롭습니다.</div>
+        </div>
+      </div>
+      <div class="tabbar">
+        <div class="tab active">
+          <svg viewBox="0 0 24 24"><path d="M4 4h16v4H4zM4 10h10v10H4zM16 10h4v10h-4z"/></svg>
+          오늘
+        </div>
+        <div class="tab">
+          <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="1"/><path d="M4 10h16M10 4v16"/></svg>
+          재고
+        </div>
+        <div class="tab">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+          등록
+        </div>
+        <div class="tab">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="3"/><path d="M5 21c0-4 3-6 7-6s7 2 7 6"/></svg>
+          전체
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. 오늘 탭 — 임박 상태 -->
+  <div class="frame-wrap">
+    <div class="frame-label">2 · 오늘 탭 — 임박 상태 (추신 = 더 볼 것)</div>
+    <div class="phone">
+      <div class="statusbar"><span>9:41</span><span>●●●●  Wi-Fi  🔋</span></div>
+      <div class="content">
+        <div class="date-line">9월 1일 화요일 아침</div>
+        <div class="greeting">오늘은 조금 서두르셔야 할 것 같아요.</div>
+        <hr class="hairline" />
+        <p class="note-sentence">
+          <span class="item">화장실 휴지</span>가 <span class="hl hl-urgent">이틀 뒤</span>에 떨어져요.
+          <span class="hl hl-urgent">오늘 주문할까요?</span>
+        </p>
+        <p class="sub-note">지난 구매 때와 같은 30롤 묶음으로, 3초 뒤 자동 결제됩니다. 취소는 언제든 가능해요.</p>
+        <span class="stamp urgent">오늘 안에 결정해주세요</span>
+        <div class="ps-block">
+          <div class="ps-label">P.S. 그 외에도 이런 것들이 다가오고 있어요 — 2건</div>
+          <div class="ps-item">· <span class="hl hl-urgent">A분유 (6단계)</span> — 4일 뒤 소진 예상, 서둘러 주세요.</div>
+          <div class="ps-item">· <span class="hl hl-ease">섬유유연제</span> — 9일 남음, 아직은 괜찮아요.</div>
+        </div>
+      </div>
+      <div class="tabbar">
+        <div class="tab active">
+          <svg viewBox="0 0 24 24"><path d="M4 4h16v4H4zM4 10h10v10H4zM16 10h4v10h-4z"/></svg>
+          오늘
+        </div>
+        <div class="tab">
+          <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="1"/><path d="M4 10h16M10 4v16"/></svg>
+          재고
+        </div>
+        <div class="tab">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+          등록
+        </div>
+        <div class="tab">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="3"/><path d="M5 21c0-4 3-6 7-6s7 2 7 6"/></svg>
+          전체
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. 재고 탭 -->
+  <div class="frame-wrap">
+    <div class="frame-label">3 · 재고 탭 — 장부 형태</div>
+    <div class="phone">
+      <div class="statusbar"><span>9:41</span><span>●●●●  Wi-Fi  🔋</span></div>
+      <div class="content">
+        <div class="date-line">우리 집 살림 장부</div>
+        <div class="ledger-title">재고 열두 가지를 살펴보고 있어요</div>
+        <div class="filters">
+          <span class="chip active">전체 12</span>
+          <span class="chip">부족 3</span>
+          <span class="chip">생활용품 5</span>
+          <span class="chip">주방 4</span>
+          <span class="chip">육아 3</span>
+        </div>
+        <div class="ledger-list">
+          <div class="ledger-row">
+            <div>
+              <div class="name">화장실 휴지</div>
+              <div class="meta">30롤 묶음 · 하루 1.1롤 소비</div>
+            </div>
+            <div class="right">
+              <div class="status urgent">2일 남음</div>
+            </div>
+          </div>
+          <div class="ledger-row">
+            <div>
+              <div class="name">A분유 (6단계)</div>
+              <div class="meta">800g 캔 · 하루 42g 소비</div>
+            </div>
+            <div class="right"><div class="status urgent">4일 남음</div></div>
+          </div>
+          <div class="ledger-row">
+            <div>
+              <div class="name">섬유유연제</div>
+              <div class="meta">1.8L · 3일에 한 번 사용</div>
+            </div>
+            <div class="right"><div class="status urgent">9일 남음</div></div>
+          </div>
+          <div class="ledger-row">
+            <div>
+              <div class="name">키친타올</div>
+              <div class="meta">6롤 묶음 · 이틀에 한 롤</div>
+            </div>
+            <div class="right"><div class="status ease">12일 남음</div></div>
+          </div>
+          <div class="ledger-row">
+            <div>
+              <div class="name">주방세제</div>
+              <div class="meta">500ml · 주 2회 보충</div>
+            </div>
+            <div class="right"><div class="status ease">18일 남음</div></div>
+          </div>
+          <div class="ledger-row">
+            <div>
+              <div class="name">샴푸</div>
+              <div class="meta">500ml · 가족 3인 공용</div>
+            </div>
+            <div class="right"><div class="status ease">21일 남음</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="tabbar">
+        <div class="tab">
+          <svg viewBox="0 0 24 24"><path d="M4 4h16v4H4zM4 10h10v10H4zM16 10h4v10h-4z"/></svg>
+          오늘
+        </div>
+        <div class="tab active">
+          <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="1"/><path d="M4 10h16M10 4v16"/></svg>
+          재고
+        </div>
+        <div class="tab">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+          등록
+        </div>
+        <div class="tab">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="3"/><path d="M5 21c0-4 3-6 7-6s7 2 7 6"/></svg>
+          전체
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. 등록 탭 -->
+  <div class="frame-wrap">
+    <div class="frame-label">4 · 등록 탭 — 프리셋 + 직접 입력</div>
+    <div class="phone">
+      <div class="statusbar"><span>9:41</span><span>●●●●  Wi-Fi  🔋</span></div>
+      <div class="content">
+        <div class="date-line">새 항목 적어두기</div>
+        <div class="greeting">무엇을 기록할까요? 자주 쓰는 것부터 골라보세요.</div>
+        <hr class="hairline" />
+
+        <div class="section-title">빠른 시작</div>
+        <div class="preset-grid">
+          <div class="preset-card"><span class="emoji">🧻</span><span class="label">화장실 휴지</span></div>
+          <div class="preset-card"><span class="emoji">🧴</span><span class="label">주방세제</span></div>
+          <div class="preset-card"><span class="emoji">🍼</span><span class="label">분유</span></div>
+          <div class="preset-card"><span class="emoji">🧺</span><span class="label">섬유유연제</span></div>
+          <div class="preset-card"><span class="emoji">🧼</span><span class="label">샴푸</span></div>
+          <div class="preset-card"><span class="emoji">🧷</span><span class="label">기저귀</span></div>
+        </div>
+
+        <div class="section-title">직접 적기</div>
+        <div class="manual-entry">
+          <div class="field-line">
+            <span class="label">품목</span>
+            <span class="value placeholder">예: 고양이 모래</span>
+          </div>
+          <div class="field-line">
+            <span class="label">용량</span>
+            <span class="value placeholder">예: 5kg 봉지</span>
+          </div>
+          <div class="field-line">
+            <span class="label">주기</span>
+            <span class="value placeholder">예: 2주에 한 번</span>
+          </div>
+        </div>
+        <p class="submit-note">다 적으셨으면 <span class="hl hl-ease">쪽지에 추가할게요</span></p>
+      </div>
+      <div class="tabbar">
+        <div class="tab">
+          <svg viewBox="0 0 24 24"><path d="M4 4h16v4H4zM4 10h10v10H4zM16 10h4v10h-4z"/></svg>
+          오늘
+        </div>
+        <div class="tab">
+          <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="1"/><path d="M4 10h16M10 4v16"/></svg>
+          재고
+        </div>
+        <div class="tab active">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+          등록
+        </div>
+        <div class="tab">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="3"/><path d="M5 21c0-4 3-6 7-6s7 2 7 6"/></svg>
+          전체
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
