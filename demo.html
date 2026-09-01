@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<title>SICAS 프로토타입 동작 영상</title>
+<style>
+  :root { --ink:#1b2230; --muted:#5b6474; --paper:#f4f5f7; --card:#fff; --line:#e2e5ea; --teal:#0e3b3e; }
+  * { box-sizing:border-box; margin:0; }
+  body {
+    font-family:-apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", Pretendard, "Segoe UI", sans-serif;
+    background:var(--paper); color:var(--ink); padding:44px 20px 72px;
+  }
+  .wrap { max-width:960px; margin:0 auto; }
+  .eyebrow { font-size:13px; font-weight:700; letter-spacing:.12em; color:var(--teal); text-transform:uppercase; }
+  h1 { font-size:30px; font-weight:800; margin:10px 0 8px; }
+  .lede { font-size:15px; color:var(--muted); line-height:1.7; max-width:620px; }
+  .back { display:inline-block; margin-top:18px; font-size:14px; color:var(--teal); font-weight:700; text-decoration:none; }
+  .stage { display:grid; grid-template-columns:minmax(280px,340px) 1fr; gap:32px; margin-top:32px; align-items:start; }
+  video { width:100%; border-radius:22px; border:1px solid var(--line); background:#000; display:block; }
+  .chapters { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:22px 24px; }
+  .chapters h2 { font-size:17px; font-weight:800; margin-bottom:14px; }
+  ol { margin:0; padding-left:20px; }
+  li { font-size:14px; line-height:1.75; color:var(--muted); margin-bottom:11px; }
+  li b { color:var(--ink); font-weight:700; }
+  .highlight { margin-top:18px; padding:14px 16px; background:#fdf3e6; border-radius:12px; font-size:13.5px; line-height:1.7; color:#7a4a18; }
+  .note { margin-top:26px; font-size:13px; color:var(--muted); line-height:1.7; }
+  @media (max-width:760px) { .stage { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">SICAS · Working Prototype</div>
+  <h1>프로토타입 동작 영상</h1>
+  <p class="lede">
+    목업이 아니라 실제로 도는 앱을 화면 녹화한 영상입니다(94초). 반복 구매 도우미의 핵심 루프 —
+    대략적인 사용량으로 시작해, 구매 기록과 미룬 이유를 받아 예측이 점점 정확해지는 과정 — 을 순서대로 보여줍니다.
+  </p>
+  <a class="back" href="./index.html">← 디자인 시안 3종 보기</a>
+
+  <div class="stage">
+    <video src="./sicas-demo.mp4" controls playsinline preload="metadata"></video>
+    <div class="chapters">
+      <h2>영상에서 보는 것</h2>
+      <ol>
+        <li><b>오늘 탭</b> — 한 번에 하나만 묻습니다. "기저귀, 곧 떨어져요."
+            정확한 수량 대신 <b>9월 2일~4일 사이</b>라는 범위로 말합니다.</li>
+        <li><b>등록</b> — 빠른 시작 프리셋에 품목별 기본 사용량이 들어 있고(기저귀 하루 6개),
+            "우리 집은 이보다 빨리 쓰나요?" 3단계만 묻습니다.</li>
+        <li><b>재고</b> — 서브탭 없이 필터 칩 하나로 전체 / 부족·임계 / 분류별.</li>
+        <li><b>이미 샀어요</b> — 구매 시각이 기록되고 "다음은 약 9일 뒤에 알려드릴게요.
+            기록이 쌓일수록 정확해져요"가 뜹니다. 화면이 <b>빨강에서 노랑으로</b> 바뀌며
+            다음 물건(분유)이 올라옵니다.</li>
+        <li><b>아직 괜찮아요</b> — 미룬 이유를 한 번에 받습니다. "아직 남아 있어요"를 고르면
+            <b>예상을 5일 뒤로 미뤘어요</b>라고 답하며 예측이 즉시 보정됩니다.</li>
+        <li><b>전체</b> — 설정과 "준비 중인 기능"만. 눌러서 막다른 길인 화면은 IA에서 뺐습니다.</li>
+      </ol>
+      <div class="highlight">
+        보실 곳: 4~5번 구간입니다. 색이 빨강 → 노랑으로 넘어가는 30초가
+        "쓸수록 정확해진다"와 "미룬 이유를 받아 보정한다"를 화면으로 증명하는 부분입니다.
+      </div>
+    </div>
+  </div>
+
+  <p class="note">
+    영상 속 데이터는 육아 가정을 가정한 데모 시드입니다(기저귀·분유·물티슈).
+    구매 기록과 미룬 이유는 현재 기기에만 저장되며, 예측에는 서버의 구매 주기 값만 사용합니다.
+  </p>
+</div>
+</body>
+</html>

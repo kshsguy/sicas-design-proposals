@@ -43,6 +43,15 @@
     padding: 13px 0; border-radius: 12px; margin-top: 6px;
   }
   a.open:hover { opacity: .92; }
+  .demo-banner {
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+    margin-top: 30px; padding: 18px 22px; text-decoration: none;
+    background: var(--teal); color: #fff; border-radius: 14px;
+  }
+  .demo-banner:hover { opacity: .93; }
+  .demo-tag { font-size: 13px; font-weight: 800; letter-spacing: .04em; background: rgba(255,255,255,.16); padding: 6px 12px; border-radius: 999px; white-space: nowrap; }
+  .demo-copy { font-size: 14.5px; line-height: 1.6; color: rgba(255,255,255,.86); }
+  .demo-copy b { color: #fff; font-weight: 700; }
   .note { margin-top: 40px; font-size: 13px; color: var(--muted); line-height: 1.7; }
 </style>
 </head>
@@ -55,6 +64,11 @@
     단순화한 4탭 구조(오늘 · 재고 · 등록 · 전체)를 전제로, 연장선 1안과 급진안 2안을 나란히 비교합니다.
     각 시안은 오늘 탭(여유/임박) · 재고 · 등록 4개 화면을 담고 있습니다.
   </p>
+
+  <a class="demo-banner" href="./demo.html">
+    <span class="demo-tag">▶ 동작 영상</span>
+    <span class="demo-copy"><b>실제로 도는 프로토타입 94초</b> — 기저귀 임박 알림부터 구매 기록·미룬 이유로 예측이 보정되는 과정까지</span>
+  </a>
 
   <div class="grid">
     <div class="card">
